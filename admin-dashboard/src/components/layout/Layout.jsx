@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Box, CssBaseline, Toolbar, useTheme, IconButton } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
+import { Outlet } from 'react-router-dom';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import Header from './Header';
 import Sidebar from './Sidebar';
@@ -14,9 +15,10 @@ import { selectSidebarMode } from '../../features/ui/uiSlice';
  * 
  * 사이드바와 헤더, 컨텐츠 영역을 포함하는 레이아웃 구조를 제공합니다.
  * 반응형으로 설계되어 모바일 환경에서는 사이드바가 숨겨지고, 헤더의 메뉴 버튼으로 열 수 있습니다.
+ * React Router v6의 Outlet을 사용하여 중첩 라우팅을 지원합니다.
  * 
  * @param {Object} props
- * @param {React.ReactNode} props.children - 레이아웃 내에 표시될 컨텐츠
+ * @param {React.ReactNode} props.children - 레이아웃 내에 표시될 컨텐츠 (선택적)
  */
 const Layout = ({ children }) => {
   const theme = useTheme();
@@ -163,7 +165,8 @@ const Layout = ({ children }) => {
             overflow: 'visible',
             height: 'auto',
           }}>
-            {children}
+            {/* React Router v6의 Outlet을 사용하여 중첩 라우팅 지원 */}
+            {children || <Outlet />}
           </Box>
         </Box>
       </Box>
@@ -172,7 +175,7 @@ const Layout = ({ children }) => {
 };
 
 Layout.propTypes = {
-  children: PropTypes.node.isRequired,
+  children: PropTypes.node,
 };
 
 export default Layout; 

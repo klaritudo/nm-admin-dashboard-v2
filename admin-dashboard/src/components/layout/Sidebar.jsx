@@ -46,6 +46,7 @@ import {
   ChevronRight,
   ViewSidebar as ViewSidebarIcon,
   ViewStream as ViewStreamIcon,
+  DesignServices as TemplateIcon,
 } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../features/auth/authSlice';
@@ -64,9 +65,9 @@ const menuItems = [
     icon: <PeopleIcon />,
     children: [
       { text: '회원관리', path: '/agent-management/members' },
-      { text: '롤링금전환내역', path: '/members/rolling-history' },
-      { text: '머니처리내역', path: '/members/money-history' },
-      { text: '머니이동내역', path: '/members/money-transfer' },
+      { text: '롤링금전환내역', path: '/agent-management/rolling-history' },
+      { text: '머니처리내역', path: '/money-history' },
+      { text: '머니이동내역', path: '/agent-management/money-transfer' },
     ],
   },
   {
@@ -86,9 +87,8 @@ const menuItems = [
     children: [
       { text: '당일정산', path: '/settlement/today' },
       { text: '일자별', path: '/settlement/daily' },
-      { text: '서드파티별', path: '/settlement/third-party' },
-      { text: '회원별', path: '/settlement/by-member' },
-      { text: '입출금', path: '/settlement/deposit-withdrawal' },
+      { text: '게임사별', path: '/settlement/third-party' },
+      { text: '회원별', path: '/settlement/member' },
     ],
   },
   {
@@ -114,7 +114,7 @@ const menuItems = [
     text: '고객센터',
     icon: <CustomerServiceIcon />,
     children: [
-      { text: '쪽지관리(1:1문의)', path: '/customer-service/messages' },
+      { text: '문의관리', path: '/customer-service/messages' },
       { text: '템플릿관리', path: '/customer-service/templates' },
     ],
   },
@@ -167,8 +167,12 @@ const menuItems = [
       { text: '인/아웃로그', path: '/logs/auth' },
       { text: '회원변경로그', path: '/logs/member-changes' },
       { text: '시스템로그', path: '/logs/system' },
-      { text: '기본테이블', path: '/logs/base-table' },
     ],
+  },
+  {
+    text: '기본템플릿',
+    icon: <TemplateIcon />,
+    path: '/base-template',
   },
   {
     text: '로그아웃',
@@ -624,7 +628,7 @@ const Sidebar = ({ window, mobileOpen, handleDrawerToggle }) => {
             fontSize: '12px',
           }}
         >
-          © 2023 관리자 대시보드
+          © 2025 NEWMOON ADMIN
         </Typography>
       </Box>
     </Box>
@@ -632,16 +636,14 @@ const Sidebar = ({ window, mobileOpen, handleDrawerToggle }) => {
 
   // 가로 모드 컨텐츠
   const horizontalContent = (
-    <Box sx={{ width: '100%' }}>
+    <Box sx={{ flexGrow: 1 }}>
       <AppBar 
         position="static" 
-        color="default" 
-        elevation={1}
+        className="css-sidebar"
         sx={{ 
-          backgroundColor: '#ffffff',
+          boxShadow: 'none',
+          backgroundColor: 'transparent',
           borderBottom: '1px solid #eff2f5',
-          display: 'block',
-          marginBottom: '10px',
         }}
       >
         <Toolbar sx={{ justifyContent: 'space-between', minHeight: '50px', py: 0.5, px: 3 }}>
@@ -726,10 +728,10 @@ const Sidebar = ({ window, mobileOpen, handleDrawerToggle }) => {
             '& .MuiDrawer-paper': { 
               boxSizing: 'border-box', 
               width: 280,
-              backgroundColor: '#ffffff',
-              boxShadow: '0 0 50px 0 rgba(82, 63, 105, 0.15)',
+              className: "css-sidebar",
             },
           }}
+          className="css-sidebar"
         >
           {verticalDrawer}
         </Drawer>
@@ -742,11 +744,11 @@ const Sidebar = ({ window, mobileOpen, handleDrawerToggle }) => {
             '& .MuiDrawer-paper': { 
               boxSizing: 'border-box', 
               width: 280,
-              backgroundColor: '#ffffff',
-              boxShadow: '0 0 50px 0 rgba(82, 63, 105, 0.15)',
+              className: "css-sidebar",
               borderRight: 'none',
             },
           }}
+          className="css-sidebar"
           open
         >
           {verticalDrawer}
