@@ -129,22 +129,22 @@ const BaseTable = ({
     }
   }, [hierarchical, data]);
   
-  // 페이지네이션 정보 로깅
-  useEffect(() => {
-    console.log(`BaseTable 상태:`, {
-      page,
-      rowsPerPage,
-      totalCount,
-      sequentialPageNumbers,
-      dataLength: data?.length || 0,
-      firstRowData: data?.[0]
-    });
-  }, [page, rowsPerPage, totalCount, data, sequentialPageNumbers]);
+  // 페이지네이션 정보 로깅 (주석 처리)
+  // useEffect(() => {
+  //   console.log(`BaseTable 상태:`, {
+  //     page,
+  //     rowsPerPage,
+  //     totalCount,
+  //     sequentialPageNumbers,
+  //     dataLength: data?.length || 0,
+  //     firstRowData: data?.[0]
+  //   });
+  // }, [page, rowsPerPage, totalCount, data, sequentialPageNumbers]);
   
-  // sequentialPageNumbers 변경 감지
-  useEffect(() => {
-    console.log('BaseTable sequentialPageNumbers 변경됨:', sequentialPageNumbers);
-  }, [sequentialPageNumbers]);
+  // sequentialPageNumbers 변경 감지 (주석 처리)
+  // useEffect(() => {
+  //   console.log('BaseTable sequentialPageNumbers 변경됨:', sequentialPageNumbers);
+  // }, [sequentialPageNumbers]);
   
   // 확장/접기 상태 변경 시 테이블 업데이트
   useEffect(() => {

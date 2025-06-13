@@ -134,7 +134,7 @@ const TableHeader = ({
               <Button 
                 variant="outlined" 
                 size="small" 
-                onClick={isGridReady ? (toggleColumnPin || onColumnPin) : undefined}
+                onClick={isGridReady ? toggleColumnPin : undefined}
                 disabled={!isGridReady}
                 sx={{ 
                   fontSize: '0.75rem', 

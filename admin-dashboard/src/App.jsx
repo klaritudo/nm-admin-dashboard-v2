@@ -39,6 +39,11 @@ import MaintenancePage from './pages/site-settings/MaintenancePage'; // 점검�
 import RegistrationSettingsPage from './pages/site-settings/RegistrationSettingsPage'; // 회원가입설정 페이지
 import OtherSettingsPage from './pages/site-settings/OtherSettingsPage'; // 기타설정 페이지
 import EventSettingsPage from './pages/site-settings/EventSettingsPage'; // 이벤트설정 페이지
+import ChangeUsernamePage from './pages/site-settings/ChangeUsernamePage'; // 아이디바꿔주기 페이지
+import UsernameChangeHistoryPage from './pages/agent-management/UsernameChangeHistoryPage'; // 아이디바꿔주기내역 페이지
+import AuthLogsPage from './pages/logs/AuthLogsPage'; // 접속로그 페이지
+import MemberChangesPage from './pages/logs/MemberChangesPage'; // 회원변경로그 페이지
+import SystemLogsPage from './pages/logs/SystemLogsPage'; // 시스템로그 페이지
 
 // 레이아웃 컴포넌트 가져오기
 import Layout from './components/layout/Layout';
@@ -89,6 +94,7 @@ function App() {
                 <Route path="agent-management/members" element={<MembersPage />} />
                 <Route path="agent-management/rolling-history" element={<RollingHistoryPage />} />
                 <Route path="agent-management/money-transfer" element={<MoneyTransferPage />} />
+                <Route path="agent-management/username-change-history" element={<UsernameChangeHistoryPage />} />
                 
                 {/* 머니 관리 */}
                 <Route path="money-history" element={<MoneyHistoryPage />} />
@@ -123,6 +129,7 @@ function App() {
                 <Route path="site-settings/registration" element={<RegistrationSettingsPage />} />
                 <Route path="site-settings/other" element={<OtherSettingsPage />} />
                 <Route path="site-settings/events" element={<EventSettingsPage />} />
+                <Route path="site-settings/change-username" element={<ChangeUsernamePage />} />
                 
                 {/* 입금신청처리 */}
                 <Route path="transactions/deposit" element={<DepositPage />} />
@@ -136,6 +143,11 @@ function App() {
                 {/* 게임설정 */}
                 <Route path="game-settings/slot" element={<SlotSettingPage />} />
                 <Route path="game-settings/casino" element={<CasinoSettingPage />} />
+                
+                {/* 로그 관리 */}
+                <Route path="logs/auth" element={<AuthLogsPage />} />
+                <Route path="logs/member-changes" element={<MemberChangesPage />} />
+                <Route path="logs/system" element={<SystemLogsPage />} />
                 
                 {/* 404 페이지 */}
                 <Route path="*" element={<NotFound />} />

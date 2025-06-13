@@ -12,6 +12,7 @@ import notificationsReducer from '../features/notifications/notificationsSlice';
 import permissionsReducer from '../features/permissions/permissionsSlice';
 import membersReducer from '../features/members/membersSlice';
 import agentLevelsReducer from '../features/agentLevels/agentLevelsSlice';
+import usernameChangeReducer from '../features/usernameChange/usernameChangeSlice';
 
 // 각 리듀서별 Persist 설정
 const authPersistConfig = {
@@ -47,7 +48,8 @@ const rootReducer = combineReducers({
   agentLevels: agentLevelsReducer,
   permissions: permissionsReducer,
   members: persistReducer(membersPersistConfig, membersReducer),
-  member: persistReducer(membersPersistConfig, membersReducer) // member와 members가 같은 리듀서를 사용
+  member: persistReducer(membersPersistConfig, membersReducer), // member와 members가 같은 리듀서를 사용
+  usernameChange: usernameChangeReducer
 });
 
 // 루트 Persist 설정

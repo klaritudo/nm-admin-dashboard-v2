@@ -31,7 +31,7 @@ import {
 import useDynamicTypes from '../../hooks/useDynamicTypes';
 
 // 탭 컴포넌트 import
-import BasicInfoTab from './tabs/BasicInfoTab';
+import BasicInfoTabWithUsernameChange from './tabs/BasicInfoTabWithUsernameChange';
 import TreeViewTab from './tabs/TreeViewTab';
 import RollingPaymentTab from './tabs/RollingPaymentTab';
 import BettingHistoryTab from './tabs/BettingHistoryTab';
@@ -630,7 +630,7 @@ const MemberDetailDialog = ({ open, onClose, member, onSave }) => {
           className="member-detail-content"
         >
           <TabPanel value={activeTab} index={0}>
-            <BasicInfoTab 
+            <BasicInfoTabWithUsernameChange 
               editedMember={editedMember}
               handleInputChange={handleInputChange}
               handleNestedInputChange={handleNestedInputChange}

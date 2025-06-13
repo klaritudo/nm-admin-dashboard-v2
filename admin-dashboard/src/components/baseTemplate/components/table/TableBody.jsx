@@ -480,13 +480,6 @@ const TableBody = ({
                   }
                 }}
               >
-                {index === 0 && column.id === 'no' && console.log('TableBody -> CellRenderer props:', {
-                  columnId: column.id,
-                  sequentialPageNumbers,
-                  page,
-                  rowsPerPage,
-                  rowIndex: index
-                })}
                 <CellRenderer
                   column={column}
                   row={row}

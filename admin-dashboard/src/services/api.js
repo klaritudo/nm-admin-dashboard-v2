@@ -243,6 +243,18 @@ const apiService = {
     getChartData: (chartType, period) => 
       api.get('/dashboard/charts', { params: { chartType, period } }),
   },
+  
+  // 아이디 변경 관련 API
+  usernameChange: {
+    getHistory: (params) => api.get('/username-change/history', { params }),
+    getOnlineChangeableUsers: () => api.get('/username-change/online-users'),
+    getChangeableUsers: (agentId, excludeUserId) => 
+      api.get('/username-change/changeable-users', { params: { agentId, excludeUserId } }),
+    toggleChangeEnabled: (userId, enabled) => 
+      api.put(`/username-change/toggle-enabled/${userId}`, { enabled }),
+    executeChange: (data) => api.post('/username-change/execute', data),
+    validateChange: (userId) => api.get(`/username-change/validate/${userId}`),
+  },
 };
 
 export default apiService; 

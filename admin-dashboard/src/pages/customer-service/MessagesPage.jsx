@@ -144,17 +144,20 @@ const MessagesPage = () => {
   // 로컬 상태로 데이터 관리 (상태 변경을 위해)
   const [localMessagesData, setLocalMessagesData] = useState([]);
 
-  // 데이터가 없을 때 직접 생성 (fallback)
+  // usePageData의 data를 직접 사용하거나, 없으면 fallback으로 생성
   const finalData = useMemo(() => {
-    // 항상 더미 데이터 생성 (types, typeHierarchy, membersData가 없어도 기본 데이터 생성)
+    if (data && data.length > 0) {
+      return data;
+    }
+    
+    // fallback: 데이터가 없을 때 직접 생성
     return generateMessagesData();
-  }, []);
+  }, [data]);
 
   // finalData가 변경될 때마다 로컬 상태 업데이트
   useEffect(() => {
     // 안전하게 데이터 처리
     const safeData = finalData || [];
-    console.log('📊 finalData 변경됨:', safeData.length, '개 문의');
     setLocalMessagesData(safeData);
   }, [finalData]);
 
@@ -241,9 +244,7 @@ const MessagesPage = () => {
     handleFilterChange,
     activeFilters,
     sequentialPageNumbers,
-    togglePageNumberMode,
-    filteredData: safeFilteredData,
-    totalCount
+    togglePageNumberMode
   } = useTableFilterAndPagination({
     data: localMessagesData || [],
     storageKey: 'messages-table-pagination',
@@ -254,6 +255,46 @@ const MessagesPage = () => {
       initialRowsPerPage: 25
     }
   });
+
+  // 수동으로 데이터 필터링
+  const safeFilteredData = useMemo(() => {
+    let filtered = [...localMessagesData];
+    
+    // 검색어 필터링
+    if (searchText) {
+      const searchLower = searchText.toLowerCase();
+      filtered = filtered.filter(item => 
+        item.title?.toLowerCase().includes(searchLower) ||
+        item.memberInfo?.toLowerCase().includes(searchLower) ||
+        item.username?.toLowerCase().includes(searchLower) ||
+        item.nickname?.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    // 다른 필터 적용
+    Object.entries(activeFilters).forEach(([key, value]) => {
+      if (value && value !== '') {
+        filtered = filtered.filter(item => {
+          if (key === 'memberType' && item.memberType) {
+            return item.memberType.id === value;
+          }
+          if (key === 'status' && item.status) {
+            const statusValue = typeof item.status === 'string' ? item.status : item.status.label;
+            return statusValue === value || (statusOptions.find(opt => opt.label === statusValue)?.value === value);
+          }
+          if (key === 'inquiryType' && item.inquiryType) {
+            const typeValue = typeof item.inquiryType === 'string' ? item.inquiryType : item.inquiryType.label;
+            return typeValue === value || (messageTypeOptions.find(opt => opt.label === typeValue)?.value === value);
+          }
+          return true;
+        });
+      }
+    });
+    
+    return filtered;
+  }, [localMessagesData, searchText, activeFilters]);
+
+  const totalCount = safeFilteredData.length;
 
   // 필터 옵션 정의
   const filterOptions = [
@@ -637,7 +678,10 @@ const MessagesPage = () => {
       {/* 테이블 컨테이너 */}
       <Box ref={containerRef} sx={{ position: 'relative' }}>
         <BaseTable
-          data={safeFilteredData || []}
+          data={safeFilteredData.slice(
+            (currentPage || 0) * (currentRowsPerPage || 25),
+            ((currentPage || 0) + 1) * (currentRowsPerPage || 25)
+          )}
           columns={finalColumns || []}
           checkable={true}
           checkedItems={checkedItems}

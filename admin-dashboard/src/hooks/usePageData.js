@@ -1,4 +1,4 @@
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useState } from 'react';
 import useDynamicTypes from './useDynamicTypes';
 import { apiOptions, bankList } from '../pages/agent-management/data/membersData';
 
@@ -126,8 +126,24 @@ export const usePageData = (config) => {
     return [];
   }, [requiresMembersData, typesInitialized, types, typeHierarchy, membersDataGenerator, generateMembersData]);
 
+  // 쿠폰 페이지용 state
+  const [couponData, setCouponData] = useState([]);
+
   // 최종 테이블 데이터
   const data = useMemo(() => {
+    // 쿠폰 관련 페이지는 동적 타입을 사용하지 않음
+    if (pageType === 'couponCreate' || pageType === 'couponHistory') {
+      if (couponData.length > 0) {
+        return couponData;
+      }
+      if (dataGenerator) {
+        const generatedData = dataGenerator();
+        setCouponData(generatedData);
+        return generatedData;
+      }
+      return [];
+    }
+
     if (!typesInitialized || Object.keys(types).length === 0) {
       return [];
     }
@@ -147,12 +163,13 @@ export const usePageData = (config) => {
         return generateMembersData(types, typeHierarchy);
       }
     }
-  }, [typesInitialized, types, typeHierarchy, membersData, dataGenerator, requiresMembersData, generateMembersData]);
+  }, [typesInitialized, types, typeHierarchy, membersData, dataGenerator, requiresMembersData, generateMembersData, pageType, couponData]);
 
   return {
     // 데이터
     data,
     membersData,
+    setData: pageType === 'couponCreate' || pageType === 'couponHistory' ? setCouponData : undefined, // 쿠폰 페이지용 setData
     
     // 동적 유형 정보
     types,

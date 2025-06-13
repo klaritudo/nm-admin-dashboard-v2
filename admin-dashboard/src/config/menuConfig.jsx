@@ -31,6 +31,7 @@ export const menuItems = [
       { id: 'rolling-history', text: '롤링금전환내역', path: '/agent-management/rolling-history' },
       { id: 'money-history', text: '머니처리내역', path: '/money-history' },
       { id: 'money-transfer', text: '머니이동내역', path: '/agent-management/money-transfer' },
+      { id: 'username-change-history', text: '아이디바꿔주기내역', path: '/agent-management/username-change-history' },
     ],
   },
   {
