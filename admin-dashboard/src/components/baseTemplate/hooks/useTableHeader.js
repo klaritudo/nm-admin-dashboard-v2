@@ -26,13 +26,39 @@ const useTableHeader = ({
   onSearch,
   onToggleIndentMode,
   onTogglePageNumberMode,
-  onToggleColumnPin
+  onToggleColumnPin,
+  tableId = 'table' // 테이블별 고유 ID 추가
 } = {}) => {
+  // 로컬 스토리지 키
+  const storageKey = `tableHeader_${tableId}_pageNumbers`;
+  
+  // 로컬 스토리지에서 저장된 값 불러오기
+  const getStoredSequentialPageNumbers = () => {
+    try {
+      const stored = localStorage.getItem(storageKey);
+      const result = stored !== null ? JSON.parse(stored) : initialSequentialPageNumbers;
+      console.log(`[${tableId}] 로컬 스토리지 페이지 번호 모드:`, {
+        storageKey,
+        stored,
+        initialSequentialPageNumbers,
+        result
+      });
+      return result;
+    } catch (error) {
+      console.warn('로컬 스토리지에서 페이지 번호 모드 불러오기 실패:', error);
+      return initialSequentialPageNumbers;
+    }
+  };
+  
   // 상태 관리
   const [searchText, setSearchText] = useState(initialSearchText);
   const [totalItems, setTotalItems] = useState(initialTotalItems);
   const [indentMode, setIndentMode] = useState(initialIndentMode);
-  const [sequentialPageNumbers, setSequentialPageNumbers] = useState(initialSequentialPageNumbers);
+  const [sequentialPageNumbers, setSequentialPageNumbers] = useState(() => {
+    const initialValue = getStoredSequentialPageNumbers();
+    console.log(`[${tableId}] sequentialPageNumbers 초기값 설정:`, initialValue);
+    return initialValue;
+  });
   const [hasPinnedColumns, setHasPinnedColumns] = useState(initialHasPinnedColumns);
   const [isGridReady, setIsGridReady] = useState(false);
   // 초기 렌더링 여부를 추적하기 위한 플래그
@@ -71,12 +97,25 @@ const useTableHeader = ({
   // 페이지 번호 모드 토글 핸들러
   const togglePageNumberMode = useCallback(() => {
     const newSequentialPageNumbers = !sequentialPageNumbers;
+    console.log(`[${tableId}] 페이지 번호 모드 토글:`, {
+      from: sequentialPageNumbers,
+      to: newSequentialPageNumbers,
+      storageKey
+    });
     setSequentialPageNumbers(newSequentialPageNumbers);
+    
+    // 로컬 스토리지에 저장
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(newSequentialPageNumbers));
+      console.log(`[${tableId}] 로컬 스토리지에 저장 완료:`, newSequentialPageNumbers);
+    } catch (error) {
+      console.warn('로컬 스토리지에 페이지 번호 모드 저장 실패:', error);
+    }
     
     if (onTogglePageNumberMode) {
       onTogglePageNumberMode(newSequentialPageNumbers);
     }
-  }, [sequentialPageNumbers, onTogglePageNumberMode]);
+  }, [sequentialPageNumbers, onTogglePageNumberMode, storageKey, tableId]);
 
   // 컬럼 고정 토글 핸들러
   const toggleColumnPin = useCallback(() => {

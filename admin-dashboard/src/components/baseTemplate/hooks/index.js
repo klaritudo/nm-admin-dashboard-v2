@@ -33,4 +33,5 @@ export { default as useTableIndent } from './useTableIndent';
 export { default as useTableHeaderFixed } from './useTableHeaderFixed'; 
 export { default as useTableAutoHeight } from './useTableAutoHeight';
 export { default as useTableResize } from './useTableResize';
-export { default as useColumnVisibility } from './useColumnVisibility'; 
+export { default as useColumnVisibility } from './useColumnVisibility';
+export { default as useTableRowDrag } from './useTableRowDrag';

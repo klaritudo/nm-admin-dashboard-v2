@@ -1,4 +1,5 @@
 import { io } from 'socket.io-client';
+import { API_CONFIG } from '../config/apiConfig';
 
 class SocketService {
   constructor() {
@@ -12,9 +13,8 @@ class SocketService {
 
   // Socket.IO 연결 초기화 (중복 연결 방지)
   connect() {
-    // 이미 연결되어 있으면 기존 소켓 반환
-    if (this.socket && this.isConnected) {
-      console.log('기존 Socket 연결 재사용:', this.socket.id);
+    if (this.socket?.connected) {
+      console.log('Socket이 이미 연결되어 있습니다.');
       return Promise.resolve(this.socket);
     }
 
@@ -34,61 +34,78 @@ class SocketService {
     this.isConnecting = true;
     this.connectionCount++;
     
-    console.log(`Socket 연결 시도 #${this.connectionCount}`);
+    const socketUrl = API_CONFIG.SOCKET_URL;
+    console.log(`🔌 Socket 연결 시도 #${this.connectionCount}:`, socketUrl);
     
     this.connectionPromise = new Promise((resolve, reject) => {
-      this.socket = io('http://localhost:3001', {
-        transports: ['websocket', 'polling'],
-        timeout: 10000,
-        forceNew: false,
-        autoConnect: true,
-        reconnection: true,
-        reconnectionAttempts: 3, // 재연결 시도 횟수 감소
-        reconnectionDelay: 2000,
-        reconnectionDelayMax: 5000
-      });
+      try {
+        this.socket = io(socketUrl, {
+          transports: ['websocket', 'polling'],
+          timeout: 10000,
+          forceNew: false,
+          autoConnect: true,
+          reconnection: true,
+          reconnectionAttempts: 5,
+          reconnectionDelay: 1000,
+          reconnectionDelayMax: 5000,
+          maxReconnectionAttempts: 5
+        });
 
-      const connectTimeout = setTimeout(() => {
-        console.warn('Socket 연결 타임아웃');
-        this.isConnecting = false;
-        reject(new Error('Socket 연결 타임아웃'));
-      }, 15000);
+        const connectTimeout = setTimeout(() => {
+          console.warn('⏱️ Socket 연결 타임아웃');
+          this.isConnecting = false;
+          reject(new Error('Socket 연결 타임아웃'));
+        }, 15000);
 
-      this.socket.on('connect', () => {
-        clearTimeout(connectTimeout);
-        console.log('✅ Socket.IO 연결 성공:', this.socket.id);
-        this.isConnected = true;
-        this.isConnecting = false;
-        this.emitToListeners('connect');
-        resolve(this.socket);
-      });
+        this.socket.on('connect', () => {
+          clearTimeout(connectTimeout);
+          console.log('✅ Socket.IO 연결 성공:', this.socket.id);
+          this.isConnected = true;
+          this.isConnecting = false;
+          this.emitToListeners('connect');
+          resolve(this.socket);
+        });
 
-      this.socket.on('disconnect', (reason) => {
-        console.log('🔌 Socket.IO 연결 해제:', reason);
-        this.isConnected = false;
-        this.isConnecting = false;
-        this.emitToListeners('disconnect', reason);
-      });
+        this.socket.on('disconnect', (reason) => {
+          console.log('🔌 Socket.IO 연결 해제:', reason);
+          this.isConnected = false;
+          this.isConnecting = false;
+          this.emitToListeners('disconnect', reason);
+        });
 
-      this.socket.on('connect_error', (error) => {
-        clearTimeout(connectTimeout);
-        console.error('❌ Socket.IO 연결 오류:', error.message);
-        this.isConnected = false;
+        this.socket.on('connect_error', (error) => {
+          clearTimeout(connectTimeout);
+          console.error('❌ Socket.IO 연결 오류:', error.message);
+          console.error('❌ 오류 상세:', error);
+          this.isConnected = false;
+          this.isConnecting = false;
+          this.emitToListeners('connect_error', error);
+          reject(error);
+        });
+
+        this.socket.on('reconnect', (attemptNumber) => {
+          console.log('🔄 Socket.IO 재연결 성공:', attemptNumber);
+          this.isConnected = true;
+          this.emitToListeners('reconnect', attemptNumber);
+        });
+
+        this.socket.on('reconnect_error', (error) => {
+          console.error('❌ Socket.IO 재연결 오류:', error.message);
+          this.emitToListeners('reconnect_error', error);
+        });
+
+        this.socket.on('reconnect_failed', () => {
+          console.error('❌ Socket.IO 재연결 완전 실패');
+          this.isConnected = false;
+          this.isConnecting = false;
+          this.emitToListeners('reconnect_failed');
+        });
+
+      } catch (error) {
+        console.error('Socket 생성 중 오류:', error.message);
         this.isConnecting = false;
-        this.emitToListeners('connect_error', error);
         reject(error);
-      });
-
-      this.socket.on('reconnect', (attemptNumber) => {
-        console.log('🔄 Socket.IO 재연결 성공:', attemptNumber);
-        this.isConnected = true;
-        this.emitToListeners('reconnect', attemptNumber);
-      });
-
-      this.socket.on('reconnect_error', (error) => {
-        console.error('❌ Socket.IO 재연결 오류:', error.message);
-        this.emitToListeners('reconnect_error', error);
-      });
+      }
     });
 
     return this.connectionPromise;

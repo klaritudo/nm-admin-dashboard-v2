@@ -102,7 +102,7 @@ const PageHeader = ({
         )}
       </Box>
       
-      <Box sx={{ display: 'flex', gap: '8px' }}>
+      <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
         {showAddButton && (
           <Button
             variant="contained"
@@ -114,6 +114,8 @@ const PageHeader = ({
             {addButtonText}
           </Button>
         )}
+        
+        {customActions}
         
         {showDisplayOptionsButton && (
           <Button
@@ -138,8 +140,6 @@ const PageHeader = ({
             새로고침
           </Button>
         )}
-        
-        {customActions}
       </Box>
     </Paper>
   );

@@ -1,7 +1,8 @@
 import axios from 'axios';
+import { API_CONFIG } from '../config/apiConfig';
 
-// API 기본 설정
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
+// API 서비스 통합 관리
+const API_BASE_URL = API_CONFIG.BASE_URL;
 
 // API 서버가 활성화되어 있는지 확인
 let isApiServerActive = false;

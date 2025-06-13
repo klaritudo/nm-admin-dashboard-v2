@@ -33,6 +33,8 @@ const useTableFilter = (options = {}) => {
    * @param {string} value - 새 필터 값
    */
   const handleFilterChange = useCallback((filterId, value) => {
+    console.log('useTableFilter - handleFilterChange 호출:', { filterId, value, prevFilters: activeFilters });
+    
     const newFilters = {
       ...activeFilters,
       [filterId]: value

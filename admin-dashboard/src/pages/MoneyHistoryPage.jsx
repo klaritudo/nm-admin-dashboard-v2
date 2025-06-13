@@ -53,7 +53,7 @@ const MoneyHistoryPage = () => {
     dataGenerator: generateMoneyHistoryData,
     requiresMembersData: true
   });
-
+  
   // 테이블 높이 자동 조정 - useTableAutoHeight 훅 사용
   const {
     containerRef,

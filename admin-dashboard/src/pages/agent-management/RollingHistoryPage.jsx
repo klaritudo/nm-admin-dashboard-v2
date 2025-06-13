@@ -4,7 +4,7 @@ import {
   TableFilterAndPagination, 
   TableHeader, 
   BaseTable, 
-  TableHeightSetting, 
+  TableHeightSetting,
   TableResizeHandle, 
   ColumnVisibilityDialog, 
   PageHeader, 
@@ -53,7 +53,7 @@ const RollingHistoryPage = () => {
     dataGenerator: generateRollingHistoryData,
     requiresMembersData: true
   });
-
+  
   // 테이블 높이 자동 조정 - useTableAutoHeight 훅 사용
   const {
     containerRef,
@@ -605,7 +605,7 @@ const RollingHistoryPage = () => {
         />
 
         <Paper elevation={1} sx={{ p: 3, borderRadius: 2, mb: 3 }}>
-          
+
           {/* 테이블 헤더 컴포넌트 */}
           <TableHeader
             title="롤링금전환내역 목록"
@@ -721,4 +721,4 @@ const RollingHistoryPage = () => {
   );
 };
 
-export default RollingHistoryPage;
+export default RollingHistoryPage; 

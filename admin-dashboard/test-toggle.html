@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>슬롯 설정 페이지 테스트</title>
+</head>
+<body>
+    <h1>슬롯 설정 페이지 토글 테스트</h1>
+    <p>브라우저에서 다음 단계를 따라하세요:</p>
+    <ol>
+        <li>브라우저에서 <a href="http://localhost:5173" target="_blank">http://localhost:5173</a> 접속</li>
+        <li>로그인 (필요한 경우)</li>
+        <li>사이드바에서 "게임설정" > "슬롯 게임설정" 클릭</li>
+        <li>또는 직접 <a href="http://localhost:5173/game-settings/slot" target="_blank">http://localhost:5173/game-settings/slot</a> 접속</li>
+        <li>개발자 도구(F12) 열고 Console 탭 확인</li>
+        <li>페이지 로드 시 나오는 로그 확인</li>
+        <li>테이블 헤더에서 "연속번호/페이지별번호" 토글 버튼 클릭</li>
+        <li>토글 클릭 시 Console에 나오는 로그 확인</li>
+        <li>번호 컬럼(첫 번째 컬럼)의 UI 변화 확인</li>
+    </ol>
+    
+    <h2>예상되는 로그</h2>
+    <h3>페이지 로드 시:</h3>
+    <pre>
+CellRenderer 호출: {columnId: "no", columnType: "number", sequentialPageNumbers: true, page: 0, rowIndex: 0}
+CellRenderer 번호 컬럼 렌더링 [행0]: {sequentialPageNumbers: true, page: 0, rowsPerPage: 10, rowIndex: 0, displayNumber: 1, columnId: "no", rowData: "..."}
+</pre>
+    
+    <h3>토글 클릭 시:</h3>
+    <pre>
+슬롯 페이지 번호 모드 토글: false (연속번호 -> 페이지별번호로 변경)
+토글 후 sequentialPageNumbers 값: false
+SlotSettingPage finalColumns: [{id: "no", type: "number", label: "No."}, ...]
+CellRenderer 번호 컬럼 렌더링 [행0]: {sequentialPageNumbers: false, page: 0, rowsPerPage: 10, rowIndex: 0, displayNumber: 1, columnId: "no", rowData: "..."}
+</pre>
+    
+    <script>
+        console.log('테스트 페이지 로드됨. 위의 단계를 따라 테스트하세요.');
+    </script>
+</body>
+</html>

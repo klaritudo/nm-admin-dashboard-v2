@@ -92,7 +92,7 @@ export const generateMoneyTransferData = (dynamicTypes = {}, dynamicTypeHierarch
       
       data.push({
         id: transactionId,
-        userId: member.userId, // 실제 회원 데이터의 아이디/닉네임 사용
+        userId: `${member.username}\n${member.nickname}`, // 줄바꿈 형태로 변경
         username: member.username, // 실제 회원 데이터의 아이디
         nickname: member.nickname, // 실제 회원 데이터의 닉네임
         superAgent: superAgent, // 실제 계층 구조에서 추출한 상위에이전트
@@ -121,6 +121,7 @@ export const moneyTransferColumns = [
     header: 'No.',
     width: 70,
     align: 'center',
+    pinnable: true
   },
   {
     id: 'userId',
@@ -129,6 +130,7 @@ export const moneyTransferColumns = [
     width: 150,
     sortable: true,
     clickable: true,
+    pinnable: true
   },
   {
     id: 'superAgent',
@@ -136,6 +138,7 @@ export const moneyTransferColumns = [
     type: 'horizontal',
     width: 200,
     sortable: true,
+    pinnable: true
   },
   {
     id: 'memberType',
@@ -144,6 +147,7 @@ export const moneyTransferColumns = [
     width: 150,
     align: 'center',
     sortable: true,
+    pinnable: true
   },
   {
     id: 'transferAmount',
@@ -152,6 +156,7 @@ export const moneyTransferColumns = [
     width: 120,
     align: 'center',
     sortable: true,
+    pinnable: true
   },
   {
     id: 'balanceAmount',
@@ -160,6 +165,7 @@ export const moneyTransferColumns = [
     width: 120,
     align: 'center',
     sortable: true,
+    pinnable: true
   },
   {
     id: 'gameMoneyAmount',
@@ -168,6 +174,7 @@ export const moneyTransferColumns = [
     width: 120,
     align: 'center',
     sortable: true,
+    pinnable: true
   },
   {
     id: 'route',
@@ -176,6 +183,7 @@ export const moneyTransferColumns = [
     width: 150,
     align: 'center',
     sortable: true,
+    pinnable: true
   },
   {
     id: 'processTime',
@@ -184,5 +192,6 @@ export const moneyTransferColumns = [
     width: 150,
     align: 'center',
     sortable: true,
+    pinnable: true
   }
 ]; 

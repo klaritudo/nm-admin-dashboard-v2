@@ -34,6 +34,7 @@ import { apiOptions, bankList } from '../agent-management/data/membersData';
 import MemberDetailDialog from '../../components/dialogs/MemberDetailDialog';
 import BettingDetailDialog from '../../components/dialogs/BettingDetailDialog';
 import usePageData from '../../hooks/usePageData';
+import { useNotification } from '../../contexts/NotificationContext.jsx';
 
 /**
  * 슬롯/카지노 베팅상세내역 페이지
@@ -41,6 +42,14 @@ import usePageData from '../../hooks/usePageData';
  */
 const SlotCasinoPage = () => {
   const theme = useTheme();
+
+  // 전역 알림 사용
+  const { handleRefresh } = useNotification();
+
+  // 새로고침 핸들러
+  const handleRefreshClick = useCallback(() => {
+    handleRefresh('슬롯/카지노 베팅내역');
+  }, [handleRefresh]);
 
   // 범용 페이지 데이터 훅 사용 (2단계 구조)
   const {
@@ -259,12 +268,15 @@ const SlotCasinoPage = () => {
     handleDragOver,
     handleDrop,
     updateColumns,
+    isColumnPinned,
     toggleColumnPin,
     resetColumnOrder,
     setDefaultPinnedColumns,
     clearAllPinnedColumns
   } = useTableColumnDrag({
     initialColumns: visibleColumns,
+    tableId: 'slot_casino_table',
+    initialPinnedColumns: ['no', 'memberInfo'],
     onColumnOrderChange: (newColumns) => {
       console.log('슬롯/카지노 컬럼 순서 변경:', newColumns.map(col => col.id));
     }
@@ -391,7 +403,7 @@ const SlotCasinoPage = () => {
     searchText,
     totalItems,
     sequentialPageNumbers,
-    hasPinnedColumns,
+    hasPinnedColumns: headerHasPinnedColumns,
     isGridReady,
     handleSearchChange,
     handleClearSearch,
@@ -400,12 +412,18 @@ const SlotCasinoPage = () => {
     setGridReady
   } = useTableHeader({
     initialTotalItems: data.length,
+    tableId: 'slotCasinoPage', // 페이지별 고유 ID 추가
     onSearch: (value) => {
+      console.log(`슬롯/카지노 검색: ${value}`);
       if (page !== 0) {
         handlePageChange(null, 0);
       }
     },
+    onTogglePageNumberMode: (sequentialMode) => {
+      console.log(`슬롯/카지노 페이지 번호 모드 토글: ${sequentialMode ? '연속번호' : '페이지별번호'}`);
+    },
     onToggleColumnPin: (hasPinned) => {
+      console.log(`컬럼 고정 토글: ${hasPinned}`);
       if (hasPinned) {
         setDefaultPinnedColumns();
       } else {
@@ -466,8 +484,11 @@ const SlotCasinoPage = () => {
   
   // 커스텀 handleFilterChange 함수
   const manualHandleFilterChange = useCallback((filterId, value) => {
-    handleFilterChange(filterId, value);
-  }, [handleFilterChange]);
+    console.log(`슬롯/카지노 필터 변경: ${filterId} = ${value}`);
+    handleFilter({
+      [filterId]: value
+    });
+  }, [handleFilter]);
 
   // useTableData 훅을 사용하여 필터링된 데이터 계산
   const computedFilteredData = useTableData({
@@ -545,10 +566,11 @@ const SlotCasinoPage = () => {
   // 테이블 강제 리렌더링을 위한 키 값
   const [tableKey, setTableKey] = useState(Date.now());
   
-  // 페이지 또는 행 수가 변경될 때마다 테이블 키 업데이트
+  // 페이지, 행 수, sequentialPageNumbers가 변경될 때마다 테이블 키 업데이트
   useEffect(() => {
     setTableKey(Date.now());
-  }, [currentPage, currentRowsPerPage]);
+    console.log(`슬롯/카지노 테이블 키 업데이트: 페이지=${currentPage}, 행수=${currentRowsPerPage}, 번호모드=${sequentialPageNumbers ? '연속번호' : '페이지별번호'}`);
+  }, [currentPage, currentRowsPerPage, sequentialPageNumbers]);
   
   // 현재 페이지와 rowsPerPage를 활용하는 메모이제이션된 표시 데이터 (전체 데이터를 BaseTable에 전달)
   const visibleData = useMemo(() => {
@@ -614,7 +636,7 @@ const SlotCasinoPage = () => {
         onDisplayOptionsClick={handleDisplayOptionsClick}
         showAddButton={false}
         showRefreshButton={true}
-        onRefreshClick={() => alert('슬롯/카지노 베팅내역 새로고침')}
+        onRefreshClick={handleRefreshClick}
         sx={{ mb: 2 }}
       />
 
@@ -640,7 +662,7 @@ const SlotCasinoPage = () => {
           countLabel="총 ##count##건의 베팅내역"
           sequentialPageNumbers={sequentialPageNumbers}
           togglePageNumberMode={togglePageNumberMode}
-          hasPinnedColumns={hasPinnedColumns}
+          hasPinnedColumns={headerHasPinnedColumns}
           isGridReady={isGridReady}
           toggleColumnPin={headerToggleColumnPin}
           searchText={searchText}
@@ -659,7 +681,7 @@ const SlotCasinoPage = () => {
             filterProps={{
               columns: columnsWithActions,
               filterValues: filterValues || {},
-              activeFilters: activeFilters || {},
+              activeFilters: safeActiveFilters || {},
               filterOptions: dynamicFilterOptions,
               handleFilterChange: manualHandleFilterChange,
               onFilter: handleFilter,

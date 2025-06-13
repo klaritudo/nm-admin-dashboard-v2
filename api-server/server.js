@@ -9,7 +9,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173", "http://localhost:3000"],
+    origin: ["http://localhost:5173", "http://localhost:3000", "http://49.171.117.184:5173"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
   }
@@ -19,7 +19,7 @@ const PORT = process.env.PORT || 3001;
 
 // 미들웨어
 app.use(cors({
-  origin: ["http://localhost:5173", "http://localhost:3000"],
+  origin: ["http://localhost:5173", "http://localhost:3000", "http://49.171.117.184:5173"],
   credentials: true
 }));
 app.use(bodyParser.json());
@@ -566,10 +566,11 @@ app.delete('/api/permissions/:id', (req, res) => {
 });
 
 // 서버 시작
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`API 서버가 포트 ${PORT}에서 실행 중입니다.`);
   console.log(`Socket.IO 서버가 활성화되었습니다.`);
-  console.log(`http://localhost:${PORT}`);
+  console.log(`http://0.0.0.0:${PORT}`);
+  console.log(`외부 접속: http://49.171.117.184:${PORT}`);
 });
 
 // 서버 종료 시 데이터베이스 연결 해제

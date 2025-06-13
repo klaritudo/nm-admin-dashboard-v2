@@ -40,14 +40,16 @@ export const slotCasinoColumns = [
     label: 'No.',
     width: '80px',
     sortable: true,
-    type: 'number'
+    type: 'number',
+    pinnable: true
   },
   {
     id: 'bettingDate',
     label: '베팅일자',
     width: '180px',
     sortable: true,
-    type: 'betting_date' // 특수 타입 - 베팅/처리 일자 구분
+    type: 'betting_date', // 특수 타입 - 베팅/처리 일자 구분
+    pinnable: true
   },
   {
     id: 'memberInfo',
@@ -56,63 +58,72 @@ export const slotCasinoColumns = [
     sortable: true,
     type: 'multiline',
     clickable: true,
-    pinned: false
+    pinned: false,
+    pinnable: true
   },
   {
     id: 'bettingInfo',
     label: '베팅정보',
     width: '200px',
     sortable: false,
-    type: 'betting_info' // 특수 타입 - 베팅 정보 그리드
+    type: 'betting_info', // 특수 타입 - 베팅 정보 그리드
+    pinnable: true
   },
   {
     id: 'bettingSection',
     label: '베팅섹션',
     width: '120px',
     sortable: true,
-    type: 'text'
+    type: 'text',
+    pinnable: true
   },
   {
     id: 'gameType',
     label: '게임유형',
     width: '100px',
     sortable: true,
-    type: 'text'
+    type: 'text',
+    pinnable: true
   },
   {
     id: 'gameCompany',
     label: '게임사',
     width: '120px',
     sortable: true,
-    type: 'text'
+    type: 'text',
+    pinnable: true
   },
   {
     id: 'gameName',
     label: '게임',
     width: '150px',
     sortable: true,
-    type: 'text'
+    type: 'text',
+    pinnable: true
   },
   {
     id: 'gameId',
     label: '게임ID',
     width: '120px',
     sortable: true,
-    type: 'text'
+    type: 'text',
+    pinnable: true
   },
   {
     id: 'transId',
     label: 'TransID',
     width: '150px',
     sortable: true,
-    type: 'text'
+    type: 'text',
+    pinnable: true
   },
   {
     id: 'linkTransId',
     label: 'LinkTransID',
     width: '150px',
     sortable: true,
-    type: 'text'
+    type: 'text',
+    pinnable: true
   },
   {
     id: 'detailView',
@@ -120,14 +131,16 @@ export const slotCasinoColumns = [
     width: '100px',
     sortable: false,
     type: 'button',
-    buttonText: '상세보기'
+    buttonText: '상세보기',
+    pinnable: false
   },
   {
     id: 'remarks',
     label: '비고',
     width: '120px',
     sortable: false,
-    type: 'betting_action' // 특수 타입 - 공베팅 버튼들
+    type: 'betting_action', // 특수 타입 - 공베팅 버튼들
+    pinnable: false
   }
 ];
 
@@ -182,7 +195,7 @@ export const generateSlotCasinoData = (types, typeHierarchy, membersData, count 
         betting: bettingDate.toISOString().slice(0, 19).replace('T', ' '),
         process: processDate.toISOString().slice(0, 19).replace('T', ' ')
       },
-      memberInfo: `${username}\n(${nickname})`,
+      memberInfo: `${username}\n${nickname}`,
       username: username,
       nickname: nickname,
       memberId: selectedMember.id,

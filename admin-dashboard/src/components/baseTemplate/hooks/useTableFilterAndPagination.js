@@ -216,6 +216,29 @@ const useTableFilterAndPagination = (options = {}) => {
   const [dateRange, setDateRange] = useState({ startDate: null, endDate: null });
   const [isDateFilterActive, setIsDateFilterActive] = useState(false);
   
+  // handleFilter 함수 정의 (객체 형태의 필터를 받아서 처리)
+  const handleFilter = useCallback((filters) => {
+    console.log('handleFilter 호출:', filters);
+    setActiveFilters(prev => ({
+      ...prev,
+      ...filters
+    }));
+    
+    // 각 필터를 개별적으로 처리
+    Object.entries(filters).forEach(([key, value]) => {
+      handleFilterChange(key, value);
+    });
+  }, [handleFilterChange]);
+  
+  // handleClearFilters 함수 정의
+  const handleClearFilters = useCallback(() => {
+    console.log('handleClearFilters 호출');
+    setActiveFilters({});
+    if (filterState && filterState.resetAllFilters) {
+      filterState.resetAllFilters();
+    }
+  }, [filterState]);
+  
   // 안전한 필터 값 처리 ('all' 값을 빈 문자열로 변환)
   const safeActiveFilters = useMemo(() => {
     if (!enableSafeFilters) return activeFilters;
@@ -248,11 +271,27 @@ const useTableFilterAndPagination = (options = {}) => {
     ...paginationState,
     
     // 데이터
-    filteredData: filterState.filteredData,
-    displayData: filterState.filteredData,
+    filteredData: filterState.filteredData || [],
+    totalCount: filterState.filteredData?.length || 0,
     
-    // 추가 함수
-    resetAllFiltersAndPagination
+    // 종합 기능
+    resetAllFiltersAndPagination,
+    
+    // 상태 정보
+    currentPage: paginationState.page || 0,
+    currentRowsPerPage: paginationState.rowsPerPage || defaultRowsPerPage,
+    
+    // 액션 핸들러
+    handlePageChange: paginationState.handlePageChange,
+    handleRowsPerPageChange: paginationState.handleRowsPerPageChange,
+    handleFilterChange,
+    handleFilter,
+    handleClearFilters,
+    resetAllFilters: filterState.resetAllFilters,
+    
+    // 유틸리티 함수
+    sequentialPageNumbers: paginationState.sequentialPageNumbers || false,
+    togglePageNumberMode: paginationState.togglePageNumberMode
   };
 };
 

@@ -2,6 +2,10 @@
  * 회원관리 테이블 컬럼 정의
  */
 
+import React from 'react';
+import { Chip, Box, Typography } from '@mui/material';
+import { MemberInfoCell } from '../../../components/baseTemplate/components';
+
 export const memberColumns = [
   {
     id: 'checkbox',
@@ -54,10 +58,12 @@ export const memberColumns = [
     pinnable: true,
     align: 'left',
     render: (value, row) => (
-      <div>
-        <div style={{ fontWeight: '700', fontSize: '14px' }}>{row.userId}</div>
-        <div style={{ fontSize: '12px', color: '#9e9e9e', fontWeight: 'normal' }}>({row.nickname})</div>
-      </div>
+      <MemberInfoCell
+        userId={row.userId}
+        nickname={row.nickname}
+        showParentheses={true}
+        clickable={false}
+      />
     )
   },
   {

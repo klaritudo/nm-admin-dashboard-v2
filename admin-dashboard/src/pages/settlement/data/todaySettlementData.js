@@ -21,6 +21,7 @@ export const todaySettlementColumns = [
     type: 'checkbox',
     width: 50,
     sortable: false,
+    pinnable: true
   },
   {
     id: 'number',
@@ -28,6 +29,7 @@ export const todaySettlementColumns = [
     header: 'No.',
     width: 70,
     align: 'center',
+    pinnable: true
   },
   {
     id: 'type',
@@ -36,6 +38,7 @@ export const todaySettlementColumns = [
     width: 120,
     cellRenderer: 'chip',
     sortable: true,
+    pinnable: true
   },
   {
     id: 'userId',
@@ -44,6 +47,7 @@ export const todaySettlementColumns = [
     width: 150,
     sortable: true,
     clickable: true,
+    pinnable: true
   },
   // 입출 그룹
   {

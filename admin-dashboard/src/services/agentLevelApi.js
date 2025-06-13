@@ -2,7 +2,10 @@
  * 에이전트 레벨 API 서비스
  */
 
-const API_BASE_URL = 'http://localhost:3001/api';
+import axios from 'axios';
+import { API_CONFIG } from '../config/apiConfig';
+
+const API_BASE_URL = API_CONFIG.BASE_URL;
 
 /**
  * API 요청 헬퍼 함수

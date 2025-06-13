@@ -31,6 +31,7 @@ import {
   generateMemberSettlementData
 } from './data/memberSettlementData';
 import usePageData from '../../hooks/usePageData';
+import { useNotification } from '../../contexts/NotificationContext.jsx';
 
 /**
  * 회원별 정산 페이지
@@ -38,6 +39,14 @@ import usePageData from '../../hooks/usePageData';
  */
 const MemberSettlementPage = () => {
   const theme = useTheme();
+
+  // 전역 알림 사용
+  const { handleRefresh } = useNotification();
+
+  // 새로고침 핸들러
+  const handleRefreshClick = useCallback(() => {
+    handleRefresh('회원별 정산');
+  }, [handleRefresh]);
 
   // 회원상세정보 다이얼로그 상태
   const [selectedMember, setSelectedMember] = useState(null);
@@ -71,7 +80,7 @@ const MemberSettlementPage = () => {
   } = usePageData({
     pageType: 'memberSettlement',
     dataGenerator: generateMemberSettlementData,
-    requiresMembersData: false
+    requiresMembersData: true
   });
 
   // 데이터가 없을 때 직접 생성 (fallback)
@@ -178,14 +187,14 @@ const MemberSettlementPage = () => {
   const dynamicFilterOptions = useMemo(() => {
     return [
       {
-        id: 'memberLevel',
-        label: '회원 등급',
+        id: 'memberType',
+        label: '회원 유형',
         items: [
           { value: '', label: '전체' },
-          ...memberLevelOptions.map(option => ({
-            value: option.value,
-            label: option.label
-          }))
+          { value: 'member', label: '회원' },
+          { value: 'agent', label: '에이전트' },
+          { value: 'dealer', label: '딜러' },
+          { value: 'admin', label: '관리자' }
         ]
       },
       {
@@ -240,7 +249,7 @@ const MemberSettlementPage = () => {
     defaultRowsPerPage: 25,
     hierarchical: false,
     filterOptions: {
-      initialFilters: { memberLevel: '', status: '', bettingRange: '' }
+      initialFilters: { memberType: '', status: '', bettingRange: '' }
     },
     paginationOptions: {
       initialPage: 0,
@@ -265,6 +274,7 @@ const MemberSettlementPage = () => {
     setGridReady
   } = useTableHeader({
     initialTotalItems: finalData.length,
+    tableId: 'memberSettlementPage', // 페이지별 고유 ID 추가
     onSearch: (value) => {
       console.log(`회원별 정산 검색: ${value}`);
       if (page !== 0) {
@@ -357,18 +367,28 @@ const MemberSettlementPage = () => {
   // 필터 콜백 함수
   const filterCallback = useCallback((result, filterId, filterValue) => {
     switch (filterId) {
-      case 'memberLevel':
+      case 'memberType':
         if (filterValue === 'all' || filterValue === '') return result;
-        return result.filter(item => item.memberLevel === filterValue);
+        return result.filter(item => {
+          // memberType이 객체인 경우 label 비교, 문자열인 경우 직접 비교
+          const typeValue = typeof item.memberType === 'object' ? item.memberType.label : item.memberType;
+          return typeValue === filterValue;
+        });
         
       case 'status':
         if (filterValue === 'all' || filterValue === '') return result;
-        return result.filter(item => item.status === filterValue);
+        return result.filter(item => {
+          // status가 객체인 경우 label 비교, 문자열인 경우 직접 비교
+          const statusValue = typeof item.status === 'object' ? item.status.label : item.status;
+          return statusValue === filterValue;
+        });
         
       case 'bettingRange':
         if (filterValue === 'all' || filterValue === '') return result;
         return result.filter(item => {
-          const betting = parseInt(item.betting.replace(/[^0-9]/g, ''));
+          // totalBetting 필드 사용
+          const betting = typeof item.totalBetting === 'number' ? item.totalBetting : 
+                          parseInt(String(item.totalBetting).replace(/[^0-9]/g, '')) || 0;
           switch (filterValue) {
             case 'low':
               return betting < 1000000;
@@ -540,7 +560,7 @@ const MemberSettlementPage = () => {
         onDisplayOptionsClick={handleDisplayOptionsClick}
         showAddButton={false}
         showRefreshButton={true}
-        onRefreshClick={() => alert('회원별 정산 새로고침')}
+        onRefreshClick={handleRefreshClick}
         sx={{ mb: 2 }}
       />
 

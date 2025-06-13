@@ -37,6 +37,8 @@ import TypeTree from './TypeTree';
  * @param {boolean} props.indentMode - 들여쓰기 모드 사용 여부
  * @param {Array} props.pinnedColumns - 고정된 컬럼 ID 배열
  * @param {number} props.tableKey - 테이블 강제 리렌더링 키
+ * @param {boolean} props.draggableRows - 행 드래그 앤 드롭 사용 여부
+ * @param {Object} props.rowDragHandlers - 행 드래그 관련 핸들러 모음
  */
 const TableBody = ({
   columns,
@@ -53,7 +55,9 @@ const TableBody = ({
   rowsPerPage = 10,
   indentMode = true,
   pinnedColumns = [],
-  tableKey = 0
+  tableKey = 0,
+  draggableRows = false,
+  rowDragHandlers = {}
 }) => {
   const theme = useTheme();
   const [columnWidths, setColumnWidths] = useState({});
@@ -123,7 +127,7 @@ const TableBody = ({
     return {
       position: 'sticky',
       left: `${leftPosition}px`,
-      zIndex: 5,
+      zIndex: columnId === 'no' ? 15 : columnId === 'checkbox' ? 14 : 10,
       backgroundColor: rowBackgroundColor,
       boxShadow: isLastPinned ? `2px 0 5px rgba(0, 0, 0, 0.1)` : 'none',
       '&::after': isLastPinned ? {
@@ -398,17 +402,24 @@ const TableBody = ({
           ? theme.palette.background.paper 
           : theme.palette.grey[50];
       
+      // 드래그 가능한 행인 경우 드래그 props 가져오기
+      const dragProps = draggableRows && rowDragHandlers.getDragHandleProps 
+        ? rowDragHandlers.getDragHandleProps(row) 
+        : {};
+      
       return (
         <TableRow
           key={row.id}
           hover
           onClick={(e) => handleRowClick(e, row)}
+          {...dragProps}
           sx={{
-            cursor: onRowClick ? 'pointer' : 'default',
+            cursor: draggableRows ? 'grab' : (onRowClick ? 'pointer' : 'default'),
             '&:hover': {
               backgroundColor: theme.palette.action.hover
             },
-            backgroundColor: rowBackgroundColor
+            backgroundColor: rowBackgroundColor,
+            ...dragProps.style
           }}
         >
           {/* 체크박스 열 */}
@@ -469,6 +480,13 @@ const TableBody = ({
                   }
                 }}
               >
+                {index === 0 && column.id === 'no' && console.log('TableBody -> CellRenderer props:', {
+                  columnId: column.id,
+                  sequentialPageNumbers,
+                  page,
+                  rowsPerPage,
+                  rowIndex: index
+                })}
                 <CellRenderer
                   column={column}
                   row={row}
@@ -511,7 +529,9 @@ TableBody.propTypes = {
   rowsPerPage: PropTypes.number,
   indentMode: PropTypes.bool,
   pinnedColumns: PropTypes.array,
-  tableKey: PropTypes.number
+  tableKey: PropTypes.number,
+  draggableRows: PropTypes.bool,
+  rowDragHandlers: PropTypes.object
 };
 
 export default TableBody; 

@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import {
   Box,
   Button,
-  Chip,
   IconButton,
   InputAdornment,
   TextField,
@@ -21,8 +20,6 @@ import FormatIndentDecreaseIcon from '@mui/icons-material/FormatIndentDecrease';
  *
  * @param {Object} props - 컴포넌트 props
  * @param {string} props.title - 테이블 제목
- * @param {number} props.totalItems - 총 항목 수
- * @param {string} props.countLabel - 총 항목 수 라벨 포맷 (예: "총 ##count##명")
  * @param {boolean} props.indentMode - 들여쓰기 모드 상태
  * @param {Function} props.toggleIndentMode - 들여쓰기 모드 토글 함수
  * @param {boolean} props.sequentialPageNumbers - 연속 페이지 번호 모드 상태
@@ -43,8 +40,6 @@ import FormatIndentDecreaseIcon from '@mui/icons-material/FormatIndentDecrease';
  */
 const TableHeader = ({
   title = '테이블',
-  totalItems = 0,
-  countLabel = "총 ##count##명",
   indentMode = true,
   toggleIndentMode = () => {},
   sequentialPageNumbers = false,
@@ -62,8 +57,6 @@ const TableHeader = ({
   searchPlaceholder = "검색...",
   sx = {}
 }) => {
-  // 카운트 라벨 생성 - ##count## 형식으로 처리
-  const formattedCountLabel = countLabel.replace(/##count##/g, totalItems);
   
   return (
     <Box 
@@ -108,13 +101,7 @@ const TableHeader = ({
           </Tooltip>
         )}
         
-        <Chip
-          label={formattedCountLabel}
-          color="primary"
-          size="small"
-          className="count-chip"
-          sx={{ fontWeight: 500 }}
-        />
+
 
         {/* 페이지 번호 표시 방식 토글 */}
         {showPageNumberToggle && (
@@ -122,7 +109,17 @@ const TableHeader = ({
             <Button 
               variant="outlined" 
               size="small" 
-              onClick={togglePageNumberMode}
+              onClick={(e) => {
+                console.log('TableHeader 토글 버튼 클릭됨!', {
+                  currentValue: sequentialPageNumbers,
+                  toggleFunction: !!togglePageNumberMode
+                });
+                if (togglePageNumberMode) {
+                  togglePageNumberMode();
+                } else {
+                  console.error('togglePageNumberMode 함수가 없습니다!');
+                }
+              }}
               sx={{ ml: 2, fontSize: '0.75rem', textTransform: 'none' }}
             >
               {sequentialPageNumbers ? "연속 번호" : "페이지별 번호"}
@@ -137,7 +134,7 @@ const TableHeader = ({
               <Button 
                 variant="outlined" 
                 size="small" 
-                onClick={isGridReady ? toggleColumnPin : undefined}
+                onClick={isGridReady ? (toggleColumnPin || onColumnPin) : undefined}
                 disabled={!isGridReady}
                 sx={{ 
                   fontSize: '0.75rem', 

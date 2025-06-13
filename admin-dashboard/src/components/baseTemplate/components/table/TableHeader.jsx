@@ -597,7 +597,8 @@ const TableHeader = forwardRef(({
     return {
       position: 'sticky',
       left: `${leftPosition}px`,
-      zIndex: 30,
+      top: 0,
+      zIndex: columnId === 'checkbox' ? 35 : columnId === 'no' ? 34 : 30,
       backgroundColor: theme.palette.grey[100],
       // 마지막 고정 컬럼에만 오른쪽 구분선 표시
       borderRight: isLastPinned ? `2px solid ${theme.palette.primary.main}` : 'none',

@@ -28,6 +28,7 @@ import {
   useColumnVisibility,
   useTable
 } from '../../components/baseTemplate/hooks';
+import { useNotification } from '../../contexts/NotificationContext.jsx';
 import { 
   membersColumns,
   apiOptions,
@@ -43,6 +44,14 @@ import usePageData from '../../hooks/usePageData';
 const MembersPage = () => {
   const theme = useTheme();
 
+  // 전역 알림 사용
+  const { handleRefresh } = useNotification();
+
+  // 새로고침 핸들러
+  const handleRefreshClick = useCallback(() => {
+    handleRefresh('회원 목록');
+  }, [handleRefresh]);
+
   // 범용 페이지 데이터 훅 사용 (1단계 구조)
   const {
     data,
@@ -55,7 +64,7 @@ const MembersPage = () => {
     pageType: 'members',
     requiresMembersData: false
   });
-
+  
   // 테이블 높이 자동 조정 - useTableAutoHeight 훅 사용
   const {
     containerRef,
@@ -90,7 +99,7 @@ const MembersPage = () => {
 
   // 들여쓰기 모드 - useTableIndent 훅 사용
   const { indentMode, toggleIndentMode } = useTableIndent(true);
-  
+
   // 유형 계층 관리 훅 사용 (동적 유형 사용)
   const {
     hierarchicalData,
@@ -391,6 +400,7 @@ const MembersPage = () => {
     setGridReady
   } = useTableHeader({
     initialTotalItems: data.length,
+    tableId: 'membersPage', // 페이지별 고유 ID 추가
     onSearch: (value) => {
       console.log(`회원 검색: ${value}`);
       if (page !== 0) {
@@ -726,7 +736,7 @@ const MembersPage = () => {
           showRefreshButton={true}
           addButtonText="회원 추가"
           onAddClick={handleCreateMemberOpen}
-          onRefreshClick={() => alert('회원 목록 새로고침')}
+          onRefreshClick={handleRefreshClick}
           sx={{ mb: 2 }}
         />
 

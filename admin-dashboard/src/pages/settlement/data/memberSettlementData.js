@@ -27,7 +27,8 @@ export const memberSettlementColumns = [
     width: 80,
     align: 'center',
     type: 'number',
-    sx: { textAlign: 'center !important' }
+    sx: { textAlign: 'center !important' },
+    pinnable: true
   },
   {
     id: 'memberInfo',
@@ -36,63 +37,89 @@ export const memberSettlementColumns = [
     align: 'center',
     type: 'member',
     clickable: true,
-    sx: { textAlign: 'center !important' }
+    sx: { textAlign: 'center !important' },
+    pinnable: true
   },
   {
-    id: 'memberLevel',
-    label: '등급',
-    width: 100,
+    id: 'superAgent',
+    label: '상위에이전트',
+    width: 200,
     align: 'center',
-    type: 'text',
-    sx: { textAlign: 'center !important' }
+    type: 'horizontal',
+    sx: { textAlign: 'center !important' },
+    pinnable: true
+  },
+  {
+    id: 'memberType',
+    label: '유형',
+    width: 150,
+    align: 'center',
+    type: 'chip',
+    sx: { textAlign: 'center !important' },
+    pinnable: true
   },
   {
     id: 'status',
     label: '상태',
     width: 100,
     align: 'center',
-    type: 'text',
-    sx: { textAlign: 'center !important' }
+    type: 'chip',
+    sx: { textAlign: 'center !important' },
+    pinnable: true
   },
   {
-    id: 'betting',
-    label: '베팅',
-    width: 150,
-    align: 'center',
-    type: 'currency',
-    sx: { textAlign: 'center !important' }
-  },
-  {
-    id: 'winning',
-    label: '당첨',
-    width: 150,
-    align: 'center',
-    type: 'currency',
-    sx: { textAlign: 'center !important' }
-  },
-  {
-    id: 'bettingProfit',
-    label: '베팅수익',
-    width: 150,
-    align: 'center',
-    type: 'currency',
-    sx: { textAlign: 'center !important' }
-  },
-  {
-    id: 'gameCount',
-    label: '게임 횟수',
+    id: 'totalBetting',
+    label: '총베팅',
     width: 120,
     align: 'center',
-    type: 'number',
-    sx: { textAlign: 'center !important' }
+    type: 'currency',
+    sx: { textAlign: 'center !important' },
+    pinnable: true
   },
   {
-    id: 'lastPlayDate',
-    label: '최종 플레이',
+    id: 'totalWinning',
+    label: '총당첨',
     width: 120,
     align: 'center',
-    type: 'text',
-    sx: { textAlign: 'center !important' }
+    type: 'currency',
+    sx: { textAlign: 'center !important' },
+    pinnable: true
+  },
+  {
+    id: 'totalProfit',
+    label: '총손익',
+    width: 120,
+    align: 'center',
+    type: 'currency',
+    sx: { textAlign: 'center !important' },
+    pinnable: true
+  },
+  {
+    id: 'totalRolling',
+    label: '총롤링',
+    width: 120,
+    align: 'center',
+    type: 'currency',
+    sx: { textAlign: 'center !important' },
+    pinnable: true
+  },
+  {
+    id: 'finalProfit',
+    label: '최종손익',
+    width: 120,
+    align: 'center',
+    type: 'currency',
+    sx: { textAlign: 'center !important' },
+    pinnable: true
+  },
+  {
+    id: 'settlementDate',
+    label: '정산일',
+    width: 150,
+    align: 'center',
+    type: 'date',
+    sx: { textAlign: 'center !important' },
+    pinnable: true
   }
 ];
 
@@ -148,87 +175,122 @@ const nicknames = [
 ];
 
 // 회원별 정산 데이터 생성 함수
-export const generateMemberSettlementData = (types = null, typeHierarchy = null) => {
+export const generateMemberSettlementData = (dynamicTypes = {}, dynamicTypeHierarchy = {}, membersData = []) => {
+  // 동적 유형이나 회원 데이터가 없으면 기본 데이터 생성
+  if (Object.keys(dynamicTypes).length === 0 || membersData.length === 0) {
+    // 기본 데이터 생성 (기존 로직)
+    const data = [];
+    
+    for (let i = 0; i < 100; i++) {
+      const betting = Math.floor(Math.random() * 5000000) + 100000;
+      const winning = Math.floor(betting * (0.75 + Math.random() * 0.20));
+      const bettingProfit = betting - winning;
+      
+      const lastPlayDate = new Date();
+      lastPlayDate.setDate(lastPlayDate.getDate() - Math.floor(Math.random() * 7));
+      
+      const levelRandom = Math.random();
+      let memberLevel;
+      if (levelRandom < 0.05) memberLevel = 'vip';
+      else if (levelRandom < 0.15) memberLevel = 'gold';
+      else if (levelRandom < 0.35) memberLevel = 'silver';
+      else if (levelRandom < 0.65) memberLevel = 'bronze';
+      else memberLevel = 'general';
+      
+      const statusRandom = Math.random();
+      let status;
+      if (statusRandom < 0.8) status = 'active';
+      else if (statusRandom < 0.9) status = 'inactive';
+      else if (statusRandom < 0.97) status = 'suspended';
+      else status = 'withdrawn';
+      
+      const memberName = memberNames[i % memberNames.length];
+      const nickname = nicknames[i % nicknames.length];
+      
+      data.push({
+        id: i + 1,
+        memberInfo: `${memberName}\n${nickname}`,
+        username: memberName,
+        nickname: nickname,
+        superAgent: [], // 기본값으로 빈 배열
+        memberType: { label: memberLevel, color: 'primary' }, // 기본 칩 스타일
+        status: {
+          label: status === 'active' ? '활성' : 
+                 status === 'inactive' ? '비활성' :
+                 status === 'suspended' ? '정지' : '탈퇴',
+          color: status === 'active' ? 'success' :
+                 status === 'inactive' ? 'warning' :
+                 status === 'suspended' ? 'error' : 'default'
+        },
+        totalBetting: betting,
+        totalWinning: winning,
+        totalProfit: bettingProfit,
+        totalRolling: Math.floor(betting * 0.1),
+        finalProfit: bettingProfit - Math.floor(betting * 0.1),
+        settlementDate: lastPlayDate.toISOString().split('T')[0]
+      });
+    }
+    
+    return data;
+  }
+  
+  // 실제 회원 데이터를 기반으로 정산 데이터 생성
   const data = [];
   
-  // 100명의 회원 데이터 생성
-  for (let i = 0; i < 100; i++) {
-    const betting = Math.floor(Math.random() * 5000000) + 100000; // 10만 ~ 510만
-    const winning = Math.floor(betting * (0.75 + Math.random() * 0.20)); // 75-95%
+  // 시드 기반 랜덤 함수 (안정적인 데이터 생성을 위해)
+  const seededRandom = (seed) => {
+    const x = Math.sin(seed) * 10000;
+    return x - Math.floor(x);
+  };
+  
+  membersData.forEach((member, index) => {
+    const seed = member.id * 1000; // 고정된 시드 값
+    
+    // 베팅 데이터 생성
+    const betting = Math.floor(seededRandom(seed + 1) * 5000000) + 100000;
+    const winning = Math.floor(betting * (0.75 + seededRandom(seed + 2) * 0.20));
     const bettingProfit = betting - winning;
-    const gameCount = Math.floor(Math.random() * 500) + 10; // 10~509회
+    const totalRolling = Math.floor(betting * (0.05 + seededRandom(seed + 3) * 0.10));
+    const finalProfit = bettingProfit - totalRolling;
     
-    // 최근 7일 내 랜덤 날짜
-    const lastPlayDate = new Date();
-    lastPlayDate.setDate(lastPlayDate.getDate() - Math.floor(Math.random() * 7));
+    // 정산일 생성 (최근 7일 내)
+    const settlementDate = new Date();
+    settlementDate.setDate(settlementDate.getDate() - Math.floor(seededRandom(seed + 4) * 7));
     
-    // 랜덤 등급 (VIP는 확률 낮게)
-    const levelRandom = Math.random();
-    let memberLevel;
-    if (levelRandom < 0.05) memberLevel = 'vip';
-    else if (levelRandom < 0.15) memberLevel = 'gold';
-    else if (levelRandom < 0.35) memberLevel = 'silver';
-    else if (levelRandom < 0.65) memberLevel = 'bronze';
-    else memberLevel = 'general';
-    
-    // 랜덤 상태 (활성이 대부분)
-    const statusRandom = Math.random();
+    // 상태 생성
+    const statusRandom = seededRandom(seed + 5);
     let status;
     if (statusRandom < 0.8) status = 'active';
     else if (statusRandom < 0.9) status = 'inactive';
     else if (statusRandom < 0.97) status = 'suspended';
     else status = 'withdrawn';
     
-    // 회원 정보
-    const memberId = memberNames[i] || `user${String(i + 1).padStart(3, '0')}`;
-    const nickname = nicknames[i] || `닉네임${i + 1}`;
-    
-    // 접속 상태 (랜덤)
-    const isOnline = Math.random() > 0.6; // 40% 확률로 온라인
-    
-    // 로그인 시간 (최근 24시간 내)
-    const loginTime = new Date();
-    loginTime.setHours(loginTime.getHours() - Math.floor(Math.random() * 24));
-    
-    // 롤링 관련 정보 (정산 페이지이므로 베팅액 기반으로 계산)
-    const rollingAmount = Math.floor(betting * 0.005); // 베팅액의 0.5%
-    const convertedRollingAmount = Math.floor(rollingAmount * Math.random() * 0.8); // 80% 이하 전환
-    const totalRollingAmount = rollingAmount + Math.floor(Math.random() * rollingAmount);
+    const statusChip = {
+      label: status === 'active' ? '활성' : 
+             status === 'inactive' ? '비활성' :
+             status === 'suspended' ? '정지' : '탈퇴',
+      color: status === 'active' ? 'success' :
+             status === 'inactive' ? 'warning' :
+             status === 'suspended' ? 'error' : 'default',
+      variant: 'outlined'
+    };
     
     data.push({
-      id: i + 1,
-      index: i + 1,
-      memberId: memberId,
-      nickname: nickname,
-      memberInfo: `${memberId}(${nickname})`, // 통합된 회원 정보
-      memberLevel: memberLevelOptions.find(level => level.value === memberLevel)?.label || '일반',
-      memberLevelValue: memberLevel,
-      status: memberStatusOptions.find(stat => stat.value === status)?.label || '활성',
-      statusValue: status,
-      betting: betting,
-      winning: winning,
-      bettingProfit: bettingProfit,
-      gameCount: gameCount,
-      lastPlayDate: lastPlayDate.toISOString().split('T')[0],
-      
-      // 회원 상세 정보 (다이얼로그용)
-      isOnline: isOnline,
-      loginTime: loginTime.toISOString().replace('T', ' ').substring(0, 19),
-      rollingAmount: rollingAmount,
-      convertedRollingAmount: convertedRollingAmount,
-      totalRollingAmount: totalRollingAmount,
-      totalTransactions: gameCount,
-      lastTransaction: lastPlayDate.toISOString().replace('T', ' ').substring(0, 19),
-      
-      // 추가 회원 정보
-      balance: Math.floor(Math.random() * 10000000) + 50000, // 보유금
-      gameMoney: Math.floor(Math.random() * 5000000), // 게임머니
-      depositTotal: Math.floor(Math.random() * 20000000) + 500000, // 총 입금액
-      withdrawTotal: Math.floor(Math.random() * 15000000), // 총 출금액
-      joinDate: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 가입일
+      id: member.id,
+      memberInfo: `${member.username}\n${member.nickname}`,
+      username: member.username,
+      nickname: member.nickname,
+      superAgent: member.parentTypes || [], // 회원 데이터의 상위 계층 정보
+      memberType: member.type, // 회원 데이터의 유형 정보
+      status: statusChip,
+      totalBetting: betting,
+      totalWinning: winning,
+      totalProfit: bettingProfit,
+      totalRolling: totalRolling,
+      finalProfit: finalProfit,
+      settlementDate: settlementDate.toISOString().split('T')[0]
     });
-  }
+  });
   
-  // 베팅액 기준으로 내림차순 정렬
-  return data.sort((a, b) => b.betting - a.betting);
+  return data;
 }; 

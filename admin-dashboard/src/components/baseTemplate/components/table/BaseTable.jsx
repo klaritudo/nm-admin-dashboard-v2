@@ -43,6 +43,8 @@ import TableBody from './TableBody';
  * @param {boolean} props.allChecked - 모든 체크박스 체크 상태
  * @param {Function} props.onToggleAll - 모든 체크박스 토글 핸들러
  * @param {Object} props.sortConfig - 정렬 상태
+ * @param {boolean} props.draggableRows - 행 드래그 앤 드롭 사용 여부
+ * @param {Object} props.rowDragHandlers - 행 드래그 관련 핸들러 모음
  */
 const BaseTable = ({
   columns = [],
@@ -74,8 +76,20 @@ const BaseTable = ({
   expandedRows = {},
   allChecked = false,
   onToggleAll,
-  sortConfig = { key: null, direction: null }
+  sortConfig = { key: null, direction: null },
+  // 행 드래그 관련 props
+  draggableRows = false,
+  rowDragHandlers = {}
 }) => {
+  // props 값 확인 (주석 처리)
+  // console.log('🚨 BaseTable props 확인:', {
+  //   columnsLength: columns?.length || 0,
+  //   dataLength: data?.length || 0,
+  //   data: data,
+  //   checkable,
+  //   page,
+  //   rowsPerPage
+  // });
   const theme = useTheme();
   const tableRef = useRef(null);
   const [tableKey, setTableKey] = useState(0);
@@ -117,13 +131,20 @@ const BaseTable = ({
   
   // 페이지네이션 정보 로깅
   useEffect(() => {
-    // console.log(`BaseTable 페이지네이션 상태: 페이지=${page}, 행수=${rowsPerPage}, 총=${totalCount}`);
-    
-    // 데이터 갯수 체크
-    if (data) {
-      // console.log(`BaseTable 데이터 수: ${data.length}개`);
-    }
-  }, [page, rowsPerPage, totalCount, data]);
+    console.log(`BaseTable 상태:`, {
+      page,
+      rowsPerPage,
+      totalCount,
+      sequentialPageNumbers,
+      dataLength: data?.length || 0,
+      firstRowData: data?.[0]
+    });
+  }, [page, rowsPerPage, totalCount, data, sequentialPageNumbers]);
+  
+  // sequentialPageNumbers 변경 감지
+  useEffect(() => {
+    console.log('BaseTable sequentialPageNumbers 변경됨:', sequentialPageNumbers);
+  }, [sequentialPageNumbers]);
   
   // 확장/접기 상태 변경 시 테이블 업데이트
   useEffect(() => {
@@ -325,6 +346,16 @@ const BaseTable = ({
     return Math.max(totalWidth + 50, 800); // 여유 공간 50px 추가, 최소 800px 보장
   }, [columns, checkable]);
   
+  // 데이터 체크 로그 추가 (주석 처리)
+  // useEffect(() => {
+  //   console.log('BaseTable 데이터 체크:', {
+  //     columns: columns?.length || 0,
+  //     data: data?.length || 0,
+  //     checkable,
+  //     pinnedColumns: pinnedColumns?.length || 0
+  //   });
+  // }, [columns, data, checkable, pinnedColumns]);
+  
   return (
     <TableContainer 
       component={Paper} 
@@ -337,9 +368,14 @@ const BaseTable = ({
           minWidth: calculateTableMinWidth,
           borderCollapse: 'separate',
           borderSpacing: 0,
-          tableLayout: 'auto' // 자동 너비 유지
+          tableLayout: 'auto', // 자동 너비 유지
+          '& thead': fixedHeader ? {
+            position: 'sticky',
+            top: 0,
+            zIndex: 20,
+            backgroundColor: theme.palette.background.paper
+          } : {}
         }} 
-        stickyHeader={fixedHeader}
       >
         <TableHeader 
           columns={columns} 
@@ -353,7 +389,6 @@ const BaseTable = ({
           dragHandlers={dragHandlers}
           dragInfo={dragInfo}
           ref={tableHeaderRef}
-          style={headerStickyStyle}
           pinnedColumns={pinnedColumns}
           tableKey={tableKey}
         />
@@ -373,6 +408,8 @@ const BaseTable = ({
           indentMode={indentMode}
           pinnedColumns={pinnedColumns}
           tableKey={tableKey}
+          draggableRows={draggableRows}
+          rowDragHandlers={rowDragHandlers}
         />
       </Table>
     </TableContainer>
@@ -410,7 +447,9 @@ BaseTable.propTypes = {
   expandedRows: PropTypes.object,
   allChecked: PropTypes.bool,
   onToggleAll: PropTypes.func,
-  sortConfig: PropTypes.object
+  sortConfig: PropTypes.object,
+  draggableRows: PropTypes.bool,
+  rowDragHandlers: PropTypes.object
 };
 
 export default BaseTable; 

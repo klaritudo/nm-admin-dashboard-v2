@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -51,139 +51,10 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../features/auth/authSlice';
 import { selectSidebarMode, toggleSidebarMode } from '../../features/ui/uiSlice';
+import { menuItems } from '../../config/menuConfig';
 import '../../styles/sidebar.css';
 
-// 메뉴 아이템 정의 - 계층형 구조
-const menuItems = [
-  {
-    text: '대시보드',
-    icon: <DashboardIcon />,
-    path: '/dashboard',
-  },
-  {
-    text: '에이전트/회원관리',
-    icon: <PeopleIcon />,
-    children: [
-      { text: '회원관리', path: '/agent-management/members' },
-      { text: '롤링금전환내역', path: '/agent-management/rolling-history' },
-      { text: '머니처리내역', path: '/money-history' },
-      { text: '머니이동내역', path: '/agent-management/money-transfer' },
-    ],
-  },
-  {
-    text: '배팅상세내역',
-    icon: <BettingIcon />,
-    children: [
-      { text: '슬롯/카지노', path: '/betting/slot-casino' },
-      /*{ text: '스포츠', path: '/betting/sports' },*/
-      /*{ text: 'PBG파워볼', path: '/betting/pbg-powerball' },*/
-      /*{ text: '코인파워볼 3분', path: '/betting/coin-powerball-3min' },*/
-      /*{ text: '코인파워볼 5분', path: '/betting/coin-powerball-5min' },*/
-    ],
-  },
-  {
-    text: '정산관리',
-    icon: <CalculationIcon />,
-    children: [
-      { text: '당일정산', path: '/settlement/today' },
-      { text: '일자별', path: '/settlement/daily' },
-      { text: '게임사별', path: '/settlement/third-party' },
-      { text: '회원별', path: '/settlement/member' },
-    ],
-  },
-  {
-    text: '입출금관리',
-    icon: <DepositIcon />,
-    children: [
-      { text: '입금신청처리', path: '/transactions/deposit' },
-      { text: '출금신청처리', path: '/transactions/withdrawal' },
-      { text: '충환내역', path: '/transactions/history' },
-    ],
-  },
-  /*{
-    text: '게임결과',
-    icon: <GameResultIcon />,
-    children: [
-      { text: '스포츠', path: '/game-results/sports' },
-      { text: 'PBG파워볼', path: '/game-results/pbg-powerball' },
-      { text: '코인파워볼 3분', path: '/game-results/coin-powerball-3min' },
-      { text: '코인파워볼 5분', path: '/game-results/coin-powerball-5min' },
-    ],
-  },*/
-  {
-    text: '고객센터',
-    icon: <CustomerServiceIcon />,
-    children: [
-      { text: '문의관리', path: '/customer-service/messages' },
-      { text: '템플릿관리', path: '/customer-service/templates' },
-    ],
-  },
-  {
-    text: '게시판',
-    icon: <BoardIcon />,
-    children: [
-      { text: '공지사항', path: '/board/notices' },
-      { text: '이벤트', path: '/board/events' },
-      { text: '팝업 설정', path: '/board/popup' },
-    ],
-  },
-  {
-    text: '게임설정',
-    icon: <GameSettingIcon />,
-    children: [
-      { text: '슬롯', path: '/game-settings/slot' },
-      { text: '카지노', path: '/game-settings/casino' },
-      /*{ text: '스포츠', path: '/game-settings/sports' },*/
-      /*{ text: 'PBG파워볼', path: '/game-settings/pbg-powerball' },*/
-      /*{ text: '코인파워볼 3분', path: '/game-settings/coin-powerball-3min' },*/
-      /*{ text: '코인파워볼 5분', path: '/game-settings/coin-powerball-5min' },*/
-    ],
-  },
-  {
-    text: '사이트설정',
-    icon: <SiteSettingIcon />,
-    children: [
-      { text: '관리자정보', path: '/site-settings/admin-info' },
-      { text: '디자인 설정', path: '/site-settings/design' },
-      { text: '메뉴 설정', path: '/site-settings/menu' },
-      { text: '도메인 설정', path: '/site-settings/domain' },
-      { text: '문자인증 설정', path: '/site-settings/sms' },
-      { text: '알림음 설정', path: '/site-settings/notification' },
-      { text: '계좌/은행 설정', path: '/site-settings/bank' },
-      { text: '단계/권한설정', path: '/site-settings/agent-level' },
-      { text: '에이전트 설정', path: '/site-settings/agent' },
-      { text: 'API 설정', path: '/site-settings/api' },
-      { text: '회원가입 설정', path: '/site-settings/registration' },
-      { text: '이벤트 설정', path: '/site-settings/events' },
-      { text: '아이디바꿔주기', path: '/site-settings/change-username' },
-      { text: '점검설정', path: '/site-settings/maintenance' },
-      { text: '기타설정', path: '/site-settings/other' },
-    ],
-  },
-  {
-    text: '로그관리',
-    icon: <LogIcon />,
-    children: [
-      { text: '인/아웃로그', path: '/logs/auth' },
-      { text: '회원변경로그', path: '/logs/member-changes' },
-      { text: '시스템로그', path: '/logs/system' },
-    ],
-  },
-  {
-    text: '기본템플릿',
-    icon: <TemplateIcon />,
-    path: '/base-template',
-  },
-  {
-    text: '로그아웃',
-    icon: <LogoutIcon />,
-    path: '/logout',
-    onClick: (navigate, dispatch) => {
-      dispatch(logout());
-      navigate('/login');
-    },
-  },
-];
+// 메뉴 아이템정의는 menuConfig.jsx에서 import하여 사용
 
 /**
  * 사이드바 컴포넌트
@@ -203,15 +74,80 @@ const Sidebar = ({ window, mobileOpen, handleDrawerToggle }) => {
   
   // 현재 열린 메뉴 상태 관리
   const [openMenus, setOpenMenus] = useState({});
+  const [menuSettings, setMenuSettings] = useState(() => {
+    // 초기값으로 localStorage에서 바로 로드
+    const stored = localStorage.getItem('menuSettings');
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch (e) {
+        console.error('Failed to parse menu settings:', e);
+        return {};
+      }
+    }
+    return {};
+  });
+  const [isMenuSettingsLoaded, setIsMenuSettingsLoaded] = useState(true); // 초기 로드 완료 상태
+
+  // localStorage에서 메뉴 설정 불러오기
+  const loadMenuSettings = () => {
+    const stored = localStorage.getItem('menuSettings');
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch (e) {
+        console.error('Failed to parse menu settings:', e);
+        return {};
+      }
+    }
+    return {};
+  };
+
+  // 메뉴 설정 업데이트 리스너
+  useEffect(() => {
+    const handleMenuSettingsUpdate = () => {
+      setMenuSettings(loadMenuSettings());
+    };
+
+    // 초기 로드는 useState에서 이미 처리했으므로 제거
+
+    // 이벤트 리스너 등록 (전역 window 객체 사용)
+    if (typeof window !== 'undefined') {
+      window.addEventListener('menuSettingsUpdated', handleMenuSettingsUpdate);
+
+      return () => {
+        window.removeEventListener('menuSettingsUpdated', handleMenuSettingsUpdate);
+      };
+    }
+  }, []);
+
+  // 메뉴 아이템이 활성화되어 있는지 확인
+  const isMenuEnabled = (menuId, parentId = null) => {
+    const key = parentId ? `${parentId}.${menuId}` : menuId;
+    const setting = menuSettings[key];
+    // 설정이 존재하고 enabled가 false인 경우만 false 반환
+    if (setting && setting.enabled === false) {
+      return false;
+    }
+    return true;
+  };
   
   // 현재 경로에 따라 활성화된 메뉴 찾기
   const findActiveParent = (items) => {
     for (const item of items) {
+      // 비활성화된 메뉴는 건너뛰기
+      if (item.id && !item.isSpecial && !isMenuEnabled(item.id)) {
+        continue;
+      }
       if (item.path && location.pathname === item.path) {
         return item.text;
       }
       if (item.children) {
         for (const child of item.children) {
+          // 비활성화된 자식 메뉴는 건너뛰기
+          if (child.id && !isMenuEnabled(child.id, item.id)) {
+            continue;
+          }
           if (location.pathname === child.path) {
             return item.text;
           }
@@ -239,6 +175,38 @@ const Sidebar = ({ window, mobileOpen, handleDrawerToggle }) => {
     navigate('/login');
   };
   
+  const handleMenuItemClick = (item) => {
+    if (item.id === 'logout') {
+      handleLogout();
+    } else if (item.path && !item.children) {
+      navigate(item.path);
+    }
+  };
+  
+  // 필터링된 메뉴 아이템 (비활성화된 메뉴 제외)
+  const filteredMenuItems = useMemo(() => {
+    return menuItems.filter(item => {
+      // isSpecial 메뉴는 항상 표시
+      if (item.isSpecial) return true;
+      // id가 없는 메뉴는 표시
+      if (!item.id) return true;
+      // 설정 확인
+      return isMenuEnabled(item.id);
+    }).map(item => {
+      // 자식 메뉴도 필터링
+      if (item.children) {
+        return {
+          ...item,
+          children: item.children.filter(child => {
+            if (!child.id) return true;
+            return isMenuEnabled(child.id, item.id);
+          })
+        };
+      }
+      return item;
+    });
+  }, [menuSettings]);
+  
   const handleMenuToggle = (menuText) => {
     setOpenMenus(prev => {
       // 다른 메뉴를 클릭했을 때 이전에 열려있던 모든 메뉴를 닫고 현재 클릭한 메뉴만 토글
@@ -259,15 +227,26 @@ const Sidebar = ({ window, mobileOpen, handleDrawerToggle }) => {
     const hasChildren = item.children && item.children.length > 0;
     const isOpen = openMenus[item.text] || false;
     
+    // 메뉴가 활성화되어 있는지 확인 (isSpecial 메뉴는 항상 표시)
+    if (item.id && !item.isSpecial && !isMenuEnabled(item.id)) {
+      return null;
+    }
+    
     // 자식 항목 중 현재 경로와 일치하는 항목이 있는지 확인
     const hasActiveChild = hasChildren && item.children.some(child => location.pathname === child.path);
     
     return (
       <>
         <ListItemButton
-          component={item.path && !hasChildren ? Link : 'div'}
-          to={item.path && !hasChildren ? item.path : undefined}
-          onClick={() => hasChildren ? handleMenuToggle(item.text) : null}
+          component={item.path && !hasChildren && item.id !== 'logout' ? Link : 'div'}
+          to={item.path && !hasChildren && item.id !== 'logout' ? item.path : undefined}
+          onClick={() => {
+            if (item.id === 'logout') {
+              handleLogout();
+            } else if (hasChildren) {
+              handleMenuToggle(item.text);
+            }
+          }}
           sx={{
             pl: level * 2 + 2,
             py: 1.5,
@@ -378,12 +357,19 @@ const Sidebar = ({ window, mobileOpen, handleDrawerToggle }) => {
     const hasChildren = item.children && item.children.length > 0;
     const hasActiveChild = hasChildren && item.children.some(child => location.pathname === child.path);
     
+    // 메뉴가 활성화되어 있는지 확인 (isSpecial 메뉴는 항상 표시)
+    if (item.id && !item.isSpecial && !isMenuEnabled(item.id)) {
+      return null;
+    }
+    
     // 메뉴 아이템 클릭 핸들러
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     
     const handleClick = (event) => {
-      if (hasChildren) {
+      if (item.id === 'logout') {
+        handleLogout();
+      } else if (hasChildren) {
         setAnchorEl(event.currentTarget);
       } else if (item.path) {
         navigate(item.path);
@@ -607,7 +593,7 @@ const Sidebar = ({ window, mobileOpen, handleDrawerToggle }) => {
         }}
       >
         <List component="nav" disablePadding>
-          {menuItems.map((item, index) => (
+          {filteredMenuItems.map((item, index) => (
             <NestedMenuItem key={index} item={item} />
           ))}
         </List>
@@ -664,7 +650,7 @@ const Sidebar = ({ window, mobileOpen, handleDrawerToggle }) => {
               justifyContent: 'center',
               gap: 0.5,
             }} className="horizontal-menu">
-              {menuItems.map((item, index) => (
+              {filteredMenuItems.map((item, index) => (
                 <HorizontalMenuItem key={index} item={item} />
               ))}
             </Box>

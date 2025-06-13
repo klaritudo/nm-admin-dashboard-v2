@@ -58,6 +58,201 @@ const CellRenderer = ({
   
   // 컬럼 타입에 따라 다른 렌더링 처리
   switch (column.type) {
+    // 이미지 컬럼
+    case 'image':
+      // 컬럼 ID에 따라 다른 스타일 적용
+      const isVendorLogo = column.id === 'vendorLogo';
+      const isGameImage = column.id === 'gameImage';
+      
+      // 크기 설정
+      const imageWidth = isVendorLogo ? 120 : isGameImage ? 210 : 40;
+      const imageHeight = isVendorLogo ? 50 : isGameImage ? 210 : 40;
+      const borderRadius = isVendorLogo || isGameImage ? 1 : '50%';
+      
+      if (!value) {
+        // 기본 아바타 표시
+        return (
+          <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+            <Box
+              sx={{
+                width: imageWidth,
+                height: imageHeight,
+                borderRadius: borderRadius,
+                backgroundColor: '#e0e0e0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#757575',
+                fontSize: isGameImage ? '24px' : '18px',
+                fontWeight: 'bold',
+                border: '1px solid #e0e0e0'
+              }}
+            >
+              {isVendorLogo ? 'NO LOGO' : isGameImage ? 'NO IMAGE' : '?'}
+            </Box>
+          </Box>
+        );
+      }
+      
+      // 문자열 URL인 경우
+      if (typeof value === 'string') {
+        return (
+          <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+            <Box
+              component="img"
+              src={value}
+              alt=""
+              sx={{
+                width: imageWidth,
+                height: imageHeight,
+                borderRadius: borderRadius,
+                objectFit: 'contain',
+                border: '1px solid #e0e0e0',
+                backgroundColor: 'white'
+              }}
+              onError={(e) => {
+                // 이미지 로드 실패 시 기본 아바타
+                e.target.style.display = 'none';
+                const fallbackText = isVendorLogo ? 'NO LOGO' : isGameImage ? 'NO IMAGE' : '?';
+                const fallbackFontSize = isGameImage ? '24px' : '18px';
+                e.target.parentElement.innerHTML = `
+                  <div style="
+                    width: ${imageWidth}px;
+                    height: ${imageHeight}px;
+                    border-radius: ${typeof borderRadius === 'number' ? borderRadius + 'px' : borderRadius};
+                    background-color: #e0e0e0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #757575;
+                    font-size: ${fallbackFontSize};
+                    font-weight: bold;
+                    border: 1px solid #e0e0e0;
+                  ">${fallbackText}</div>
+                `;
+              }}
+            />
+          </Box>
+        );
+      }
+      
+      // 객체인 경우 (src와 fallback 또는 bg와 text)
+      if (typeof value === 'object') {
+        // src와 fallback이 있는 경우
+        if (value.src) {
+          return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+              <Box
+                component="img"
+                src={value.src}
+                alt=""
+                sx={{
+                  width: imageWidth,
+                  height: imageHeight,
+                  borderRadius: borderRadius,
+                  objectFit: 'contain',
+                  border: '1px solid #e0e0e0',
+                  backgroundColor: 'white'
+                }}
+                onError={(e) => {
+                  // fallback 처리
+                  if (value.fallback) {
+                    // fallback 객체가 있는 경우
+                    if (typeof value.fallback === 'object' && value.fallback.bg && value.fallback.text) {
+                      e.target.style.display = 'none';
+                      const fallbackFontSize = isGameImage ? '24px' : isVendorLogo ? '14px' : '16px';
+                      e.target.parentElement.innerHTML = `
+                        <div style="
+                          width: ${imageWidth}px;
+                          height: ${imageHeight}px;
+                          border-radius: ${typeof borderRadius === 'number' ? borderRadius + 'px' : borderRadius};
+                          background-color: ${value.fallback.bg};
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
+                          color: white;
+                          font-size: ${fallbackFontSize};
+                          font-weight: bold;
+                          border: 1px solid #e0e0e0;
+                        ">${value.fallback.text}</div>
+                      `;
+                    }
+                  } else {
+                    // 기본 fallback
+                    e.target.style.display = 'none';
+                    const fallbackText = isVendorLogo ? 'NO LOGO' : isGameImage ? 'NO IMAGE' : '?';
+                    const fallbackFontSize = isGameImage ? '24px' : '18px';
+                    e.target.parentElement.innerHTML = `
+                      <div style="
+                        width: ${imageWidth}px;
+                        height: ${imageHeight}px;
+                        border-radius: ${typeof borderRadius === 'number' ? borderRadius + 'px' : borderRadius};
+                        background-color: #e0e0e0;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: #757575;
+                        font-size: ${fallbackFontSize};
+                        font-weight: bold;
+                        border: 1px solid #e0e0e0;
+                      ">${fallbackText}</div>
+                    `;
+                  }
+                }}
+              />
+            </Box>
+          );
+        }
+        
+        // bg와 text만 있는 경우 (아바타 스타일)
+        if (value.bg && value.text) {
+          const avatarFontSize = isGameImage ? '24px' : isVendorLogo ? '14px' : '16px';
+          return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+              <Box
+                sx={{
+                  width: imageWidth,
+                  height: imageHeight,
+                  borderRadius: borderRadius,
+                  backgroundColor: value.bg,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontSize: avatarFontSize,
+                  fontWeight: 'bold',
+                  border: '1px solid #e0e0e0'
+                }}
+              >
+                {value.text}
+              </Box>
+            </Box>
+          );
+        }
+      }
+      
+      // 기본 fallback
+      return (
+        <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+          <Box
+            sx={{
+              width: 40,
+              height: 40,
+              borderRadius: '50%',
+              backgroundColor: '#e0e0e0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#757575',
+              fontSize: '18px',
+              fontWeight: 'bold'
+            }}
+          >
+            ?
+          </Box>
+        </Box>
+      );
+    
     // 번호 컬럼 (No.)
     case 'number':
       // 번호 계산 로직 
@@ -469,12 +664,21 @@ const CellRenderer = ({
             variant={value.variant || 'filled'}
             sx={{ 
               maxWidth: '100%',
-              backgroundColor: value.backgroundColor || undefined,
-              borderColor: value.borderColor || undefined,
-              color: value.borderColor || undefined,
+              backgroundColor: value.backgroundColor,
+              borderColor: value.borderColor,
+              color: value.borderColor,
               border: value.borderColor ? `1px solid ${value.borderColor}` : undefined,
               '& .MuiChip-label': {
-                color: value.borderColor || undefined
+                color: value.borderColor
+              },
+              // !important를 추가하여 MUI 기본 스타일 덮어쓰기
+              '&.MuiChip-filled': {
+                backgroundColor: value.backgroundColor ? `${value.backgroundColor} !important` : undefined,
+                color: value.borderColor ? `${value.borderColor} !important` : undefined,
+                border: value.borderColor ? `1px solid ${value.borderColor} !important` : undefined,
+              },
+              '&:hover': {
+                backgroundColor: value.backgroundColor ? `${value.backgroundColor} !important` : undefined,
               }
             }}
           />
@@ -579,7 +783,7 @@ const CellRenderer = ({
       
       // API 드롭다운인 경우
       if (column.id === 'api') {
-        const apiOptions = [
+        const apiOptions = column.dropdownOptions || [
           { value: 'api1', label: 'API 1' },
           { value: 'api2', label: 'API 2' },
           { value: 'api3', label: 'API 3' },
@@ -590,7 +794,7 @@ const CellRenderer = ({
           <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
             <FormControl size="small" sx={{ minWidth: 100 }}>
               <Select
-                value={value || 'api1'}
+                value={row.api || value || 'api1'}
                 onChange={(e) => {
                   e.stopPropagation();
                   const newApi = e.target.value;
@@ -745,6 +949,17 @@ const CellRenderer = ({
     
     // 커스텀 렌더러
     case 'custom':
+      // column.render 함수가 있는 경우 호출
+      if (column.render && typeof column.render === 'function') {
+        const rendered = column.render(row, value);
+        // render 함수가 React 요소를 반환한 경우
+        if (React.isValidElement(rendered)) {
+          return rendered;
+        }
+        // render 함수가 값을 반환한 경우
+        value = rendered;
+      }
+      
       // levelTypeChip 커스텀 렌더러
       if (column.customRenderer === 'levelTypeChip') {
         if (!value) return '-';
@@ -755,15 +970,18 @@ const CellRenderer = ({
               label={value}
               size="small"
               sx={{
-                backgroundColor: row.backgroundColor || '#e8f5e9',
-                color: row.borderColor || '#2e7d32',
-                border: `1px solid ${row.borderColor || '#2e7d32'}`,
+                backgroundColor: `${row.backgroundColor || '#e8f5e9'} !important`,
+                color: `${row.borderColor || '#2e7d32'} !important`,
+                border: `1px solid ${row.borderColor || '#2e7d32'} !important`,
                 fontWeight: 400,
                 borderRadius: '50px',
                 padding: '0 8px',
                 height: '28px',
                 fontSize: '0.8rem',
-                maxWidth: '100%'
+                maxWidth: '100%',
+                '&:hover': {
+                  backgroundColor: `${row.backgroundColor || '#e8f5e9'} !important`,
+                }
               }}
             />
           </Box>
@@ -771,9 +989,24 @@ const CellRenderer = ({
       }
       
       // 기본 커스텀 렌더링
+      // value가 React 요소인 경우 그대로 반환
+      if (React.isValidElement(value)) {
+        return value;
+      }
+      
+      // value가 문자열이나 숫자인 경우만 Typography로 감싸기
+      if (typeof value === 'string' || typeof value === 'number') {
+        return (
+          <Typography variant="body2" sx={{ textAlign: 'center !important', width: '100%' }}>
+            {value || '-'}
+          </Typography>
+        );
+      }
+      
+      // 그 외의 경우 빈 값 반환
       return (
         <Typography variant="body2" sx={{ textAlign: 'center !important', width: '100%' }}>
-          {value || '-'}
+          -
         </Typography>
       );
 

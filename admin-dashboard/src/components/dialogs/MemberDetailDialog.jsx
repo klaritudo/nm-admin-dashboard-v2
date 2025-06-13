@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -385,13 +385,19 @@ const MemberDetailDialog = ({ open, onClose, member, onSave }) => {
     );
   };
 
-  // 레벨 칩 스타일 가져오기 (동적 유형 사용)
-  const getLevelChipStyle = (item) => {
-    // 동적 유형이 초기화되지 않은 경우 기본 스타일 사용
-    if (!typesInitialized || Object.keys(types).length === 0) {
+  // 레벨 칩 스타일 함수
+  const getLevelChipStyle = useCallback((item) => {
+    console.log('💄 getLevelChipStyle 호출:', item);
+    console.log('💄 getTypeIdByLevelName 함수 존재:', typeof getTypeIdByLevelName);
+    console.log('💄 getTypeInfo 함수 존재:', typeof getTypeInfo);
+    console.log('💄 types 상태:', types);
+    console.log('💄 typesInitialized:', typesInitialized);
+
+    // useDynamicTypes 훅이 아직 초기화되지 않은 경우 기본값 반환
+    if (!typesInitialized || typeof getTypeIdByLevelName !== 'function' || typeof getTypeInfo !== 'function') {
+      console.log('⚠️ useDynamicTypes가 아직 초기화되지 않음, 기본값 반환');
       return {
-        backgroundColor: '#f5f5f5',
-        textColor: '#424242',
+        backgroundColor: '#e0e0e0',
         borderColor: '#424242',
         name: typeof item.levelName === 'object' ? 
           (item.levelName.name || item.levelName.label || '회원') : 
@@ -437,7 +443,7 @@ const MemberDetailDialog = ({ open, onClose, member, onSave }) => {
         (item.levelName.name || item.levelName.label || '회원') : 
         (item.levelName || '회원')
     };
-  };
+  }, [types, typesInitialized, getTypeIdByLevelName, getTypeInfo]);
 
   return (
     <Dialog

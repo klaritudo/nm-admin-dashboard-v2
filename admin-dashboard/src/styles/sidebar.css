@@ -289,4 +289,14 @@
     opacity: 1;
     transform: translateX(0);
   }
+}
+
+/* 비활성화된 메뉴 숨김 - 초기부터 숨김 처리 */
+.menu-item-hidden {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 } 

@@ -19,6 +19,7 @@ export { default as ResizableTableContainer } from './table/ResizableTableContai
 export { default as TableDebugInfo } from './table/TableDebugInfo';
 export { default as ColumnVisibilityDialog } from './ColumnVisibilityDialog';
 export { default as ParentChips } from './ParentChips';
+export { default as MemberInfoCell } from './common/MemberInfoCell';
 
 // 테이블 컴포넌트
 export { BaseTable } from './table'; 

@@ -2,7 +2,10 @@
  * 권한 관리 API 서비스
  */
 
-const API_BASE_URL = 'http://localhost:3001/api';
+import axios from 'axios';
+import { API_CONFIG } from '../config/apiConfig';
+
+const API_BASE_URL = API_CONFIG.BASE_URL;
 
 // Fallback Mock 데이터 (서버 연결 실패 시 사용)
 const mockPermissionData = [
